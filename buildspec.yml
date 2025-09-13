@@ -17,7 +17,7 @@ phases:
   post_build:
     commands:
       - zip -qr application.zip dist/* node_modules package.json
-      - aws cloudformation package --s3-bucket playlist-transfer-artifact-bucket --output-template output-template.yml
+      - aws cloudformation package --s3-bucket playlist-transfer-artifact-bucket --template=infrastructure.yml --output-template output-template.yml
 
 artifacts:
   files:
