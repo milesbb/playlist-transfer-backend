@@ -24,7 +24,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: PlaylistTransferApiFunction
-      CodeUri: application.zip
+      CodeUri: s3://playlist-transfer-artifact-bucket/function.zip
+      # CodeUri: application.zip
       Role: !GetAtt PlaylistTransferLambdaExecutionRole.Arn
       Architectures:
         - x86_64
@@ -111,6 +112,7 @@ Resources:
         - arn:aws:iam::aws:policy/AWSCodeBuildDeveloperAccess
         - arn:aws:iam::aws:policy/AWSLambda_FullAccess
         - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
+        - arn:aws:iam::aws:policy/AWSCloudFormationFullAccess
 
   PlaylistTransferPipeline:
     Type: AWS::CodePipeline::Pipeline
@@ -138,7 +140,7 @@ Resources:
                 Owner: milesbb
                 Repo: playlist-transfer-backend
                 Branch: main
-                OAuthToken: <YOUR_GITHUB_TOKEN>
+                OAuthToken: '{{resolve:ssm-secure:github-oauth-token}}'
         - Name: Build
           Actions:
             - Name: BuildAction
@@ -155,14 +157,30 @@ Resources:
                 ProjectName: !Ref PlaylistTransferBuildProject
         - Name: Deploy
           Actions:
-            - Name: LambdaDeploy
+            - Name: CreateChangeSet
               ActionTypeId:
                 Category: Deploy
                 Owner: AWS
-                Provider: Lambda
+                Provider: CloudFormation
                 Version: 1
               InputArtifacts:
                 - Name: BuildOutput
               Configuration:
-                FunctionName: !Ref PlaylistTransferApiFunction
+                ChangeSetName: !Sub '${AWS::StackName}-Changeset'
+                ActionMode: CHANGE_SET_REPLACE
+                StackName: !Sub '${AWS::StackName}'
                 TemplatePath: BuildOutput::output-template.yml
+                Capabilities: CAPABILITY_NAMED_IAM
+                RoleArn: !GetAtt PlaylistTransferCodePipelineRole.Arn
+              RunOrder: 1
+            - Name: DeployChangeSet
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: 1
+              Configuration:
+                ChangeSetName: !Sub '${AWS::StackName}-Changeset'
+                ActionMode: CHANGE_SET_EXECUTE
+                StackName: !Sub '${AWS::StackName}'
+              RunOrder: 2
