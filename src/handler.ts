@@ -6,4 +6,4 @@ app.listen(config.port, () => {
   console.log(`Serverless API running on port ${config.port}`);
 });
 
-export const handler = serverless(app);
+exports.handler = serverless(app);
