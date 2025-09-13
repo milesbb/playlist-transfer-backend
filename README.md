@@ -110,3 +110,7 @@ playlist-transfer-backend/
 # Wanting to Contribute?
 
 This is not a super serious project and still in it's early infancy. Branch protections and sufficient tests are not set up yet. When they are, I will begin to create small 'easy first issue' issues that people can pick up. In general though feel free to comment on anything, always down to discuss and learn!
+
+# License
+
+This project is licensed under the MIT License.
