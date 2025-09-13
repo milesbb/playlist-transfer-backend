@@ -18,6 +18,7 @@ phases:
       - mkdir -p artifact
       - cp -r dist node_modules package.json artifact/
       - cp package.json dist/
+      - cp package.json artifact/dist/
       - cd artifact
       - zip -r function.zip * > /dev/null 2>&1
       - aws s3 cp function.zip s3://playlist-transfer-artifact-bucket/function.zip
