@@ -2,12 +2,12 @@
   "name": "playlist-transfer-backend",
   "version": "1.0.0",
   "description": "Backend for playlist transfer SaaS",
-  "main": "index.js",
+  "main": "lambda.js",
   "scripts": {
     "dev": "webpack --config webpack.local.config.js --watch & nodemon dist/local-server.js",
     "build": "webpack --config webpack.config.js",
     "clean": "rm -rf dist",
-    "start": "node dist/index.js",
+    "start": "node dist/lambda.js",
     "start-offline-serverless": "sls offline start",
     "lint": "eslint 'src/**/*.ts'",
     "test": "echo 'no tests yet!'"

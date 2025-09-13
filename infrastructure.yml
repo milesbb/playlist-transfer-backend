@@ -5,7 +5,7 @@ Description: CI/CD Pipeline for TypeScript Node.js Express Lambda Playlist Trans
 Globals:
   Function:
     Runtime: nodejs20.x
-    Handler: index.handler
+    Handler: dist/lambda.handler
     Timeout: 15
     MemorySize: 256
 
@@ -29,8 +29,6 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: PlaylistTransferApiFunction
-      # CodeUri: s3://placeholder-playlist-bucket/function.zip
-      # CodeUri: s3://playlist-transfer-artifact-bucket/function.zip
       CodeUri: application.zip
       Role: !GetAtt PlaylistTransferLambdaExecutionRole.Arn
       Architectures:

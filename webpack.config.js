@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export default {
-  entry: './src/index.ts',
+  entry: './src/lambda.ts',
   target: 'node18',
   mode: 'production',
   module: {
@@ -24,7 +24,7 @@ export default {
     plugins: [new TsconfigPathsPlugin()],
   },
   output: {
-    filename: 'index.js',
+    filename: 'lambda.js',
     path: path.resolve(__dirname, 'dist'),
     libraryTarget: 'commonjs2',
   },
