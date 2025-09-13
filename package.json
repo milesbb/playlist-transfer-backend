@@ -7,7 +7,7 @@
     "dev": "webpack --config webpack.local.config.js --watch & nodemon dist/local-server.js",
     "build": "webpack --config webpack.config.js",
     "clean": "rm -rf dist",
-    "start": "node dist/lambda.js",
+    "start": "node dist/index.js",
     "start-offline-serverless": "sls offline start",
     "lint": "eslint 'src/**/*.ts'",
     "test": "echo 'no tests yet!'"
