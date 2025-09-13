@@ -18,7 +18,7 @@ phases:
       - mkdir -p artifact
       - cp -r dist node_modules package.json artifact/
       - cd artifact
-      - zip -r function.zip *
+      - zip -r function.zip * > /dev/null 2>&1
 artifacts:
   files:
     - artifact/function.zip
