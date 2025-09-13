@@ -115,7 +115,8 @@ Resources:
       Name: !Sub '${AWS::StackName}-Pipeline'
       RoleArn: !GetAtt PlaylistTransferCodePipelineRole.Arn
       Tags:
-        project: playlist-transfer
+        - Key: project
+          Value: playlist-transfer
       ArtifactStore:
         Type: S3
         Location: !Ref PlaylistTransferArtifactBucket
