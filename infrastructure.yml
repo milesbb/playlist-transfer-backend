@@ -9,6 +9,11 @@ Globals:
     Timeout: 15
     MemorySize: 256
 
+Parameters:
+  GitHubToken:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: github-oauth-token
+
 Resources:
   PlaylistTransferArtifactBucket:
     Type: AWS::S3::Bucket
@@ -140,7 +145,7 @@ Resources:
                 Owner: milesbb
                 Repo: playlist-transfer-backend
                 Branch: main
-                OAuthToken: '{{resolve:ssm-secure:github-oauth-token}}'
+                OAuthToken: !Ref GitHubToken
         - Name: Build
           Actions:
             - Name: BuildAction
