@@ -17,7 +17,8 @@ Resources:
       VersioningConfiguration:
         Status: Enabled
       Tags:
-        project: playlist-transfer
+        - Key: project
+          Value: playlist-transfer
 
   PlaylistTransferApiFunction:
     Type: AWS::Serverless::Function
