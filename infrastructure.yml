@@ -24,7 +24,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: PlaylistTransferApiFunction
-      CodeUri: s3://your-artifact-bucket/function.zip
+      # CodeUri: s3://playlist-transfer-artifact-bucket/function.zip
+      CodeUri: s3://placeholder-playlist-bucket/function.zip
       Role: !GetAtt PlaylistTransferLambdaExecutionRole.Arn
       Architectures:
         - x86_64
