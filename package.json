@@ -2,7 +2,7 @@
   "name": "playlist-transfer-backend",
   "version": "1.0.0",
   "description": "Backend for playlist transfer SaaS",
-  "main": "dist/lambda.js",
+  "main": "index.js",
   "scripts": {
     "dev": "webpack --config webpack.local.config.js --watch & nodemon dist/local-server.js",
     "build": "webpack --config webpack.config.js",
