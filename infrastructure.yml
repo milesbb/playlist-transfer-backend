@@ -10,7 +10,6 @@ Globals:
     MemorySize: 256
 
 Resources:
-  # S3 Bucket for pipeline artifacts
   PlaylistTransferArtifactBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -18,10 +17,8 @@ Resources:
       VersioningConfiguration:
         Status: Enabled
       Tags:
-        - Key: project
-          Value: playlist-transfer
+        project: playlist-transfer
 
-  # Lambda function
   PlaylistTransferApiFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -40,10 +37,8 @@ Resources:
             Path: /{proxy+}
             Method: ANY
       Tags:
-        - Key: project
-          Value: playlist-transfer
+        project: playlist-transfer
 
-  # IAM Role for Lambda
   PlaylistTransferLambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -58,7 +53,6 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
 
-  # IAM Role for CodeBuild
   PlaylistTransferCodeBuildRole:
     Type: AWS::IAM::Role
     Properties:
@@ -75,7 +69,6 @@ Resources:
         - arn:aws:iam::aws:policy/AWSLambdaFullAccess
         - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
 
-  # CodeBuild project
   PlaylistTransferBuildProject:
     Type: AWS::CodeBuild::Project
     Properties:
@@ -97,10 +90,8 @@ Resources:
         Location: https://github.com/milesbb/playlist-transfer-backend.git
         BuildSpec: buildspec.yml
       Tags:
-        - Key: project
-          Value: playlist-transfer
+        project: playlist-transfer
 
-  # IAM Role for CodePipeline
   PlaylistTransferCodePipelineRole:
     Type: AWS::IAM::Role
     Properties:
@@ -117,15 +108,13 @@ Resources:
         - arn:aws:iam::aws:policy/AWSCodeBuildDeveloperAccess
         - arn:aws:iam::aws:policy/AWSLambdaFullAccess
 
-  # CodePipeline
   PlaylistTransferPipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
       Name: !Sub '${AWS::StackName}-Pipeline'
       RoleArn: !GetAtt PlaylistTransferCodePipelineRole.Arn
       Tags:
-        - Key: project
-          Value: playlist-transfer
+        project: playlist-transfer
       ArtifactStore:
         Type: S3
         Location: !Ref PlaylistTransferArtifactBucket
