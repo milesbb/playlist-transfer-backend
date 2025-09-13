@@ -1,0 +1,161 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: CI/CD Pipeline for TypeScript Node.js Express Lambda Playlist Transfer Backend
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Handler: serverless.handler
+    Timeout: 15
+    MemorySize: 256
+
+Resources:
+  # S3 Bucket for pipeline artifacts
+  PlaylistTransferArtifactBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '${AWS::StackName}-artifacts'
+      VersioningConfiguration:
+        Status: Enabled
+
+  # Lambda function
+  PlaylistTransferApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: PlaylistTransferApiFunction
+      CodeUri: ./dist
+      Role: !GetAtt PlaylistTransferLambdaExecutionRole.Arn
+      Architectures:
+        - x86_64
+      Environment:
+        Variables:
+          NODE_ENV: production
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+
+  # IAM Role for Lambda
+  PlaylistTransferLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${AWS::StackName}-PlaylistTransferLambdaExecutionRole'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+  # IAM Role for CodeBuild
+  PlaylistTransferCodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${AWS::StackName}-PlaylistTransferCodeBuildRole'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AWSLambdaFullAccess
+        - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
+
+  # CodeBuild project
+  PlaylistTransferBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub '${AWS::StackName}-CodeBuild'
+      ServiceRole: !GetAtt PlaylistTransferCodeBuildRole.Arn
+      Artifacts:
+        Type: S3
+        Location: !Ref PlaylistTransferArtifactBucket
+        Packaging: ZIP
+        Path: build
+        Name: function.zip
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:7.0
+        PrivilegedMode: false
+      Source:
+        Type: GITHUB
+        Location: https://github.com/milesbb/playlist-transfer-backend.git
+        BuildSpec: buildspec.yml
+
+  # IAM Role for CodePipeline
+  PlaylistTransferCodePipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${AWS::StackName}-PlaylistTransferCodePipelineRole'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3FullAccess
+        - arn:aws:iam::aws:policy/AWSCodeBuildDeveloperAccess
+        - arn:aws:iam::aws:policy/AWSLambdaFullAccess
+
+  # CodePipeline
+  PlaylistTransferPipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      Name: !Sub '${AWS::StackName}-Pipeline'
+      RoleArn: !GetAtt PlaylistTransferCodePipelineRole.Arn
+      ArtifactStore:
+        Type: S3
+        Location: !Ref PlaylistTransferArtifactBucket
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: GitHubSource
+              ActionTypeId:
+                Category: Source
+                Owner: ThirdParty
+                Provider: GitHub
+                Version: 1
+              OutputArtifacts:
+                - Name: SourceOutput
+              Configuration:
+                Owner: milesbb
+                Repo: playlist-transfer-backend
+                Branch: main
+                OAuthToken: <YOUR_GITHUB_TOKEN>
+        - Name: Build
+          Actions:
+            - Name: BuildAction
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: 1
+              InputArtifacts:
+                - Name: SourceOutput
+              OutputArtifacts:
+                - Name: BuildOutput
+              Configuration:
+                ProjectName: !Ref PlaylistTransferBuildProject
+        - Name: Deploy
+          Actions:
+            - Name: LambdaDeploy
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: Lambda
+                Version: 1
+              InputArtifacts:
+                - Name: BuildOutput
+              Configuration:
+                FunctionName: !Ref PlaylistTransferApiFunction
