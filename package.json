@@ -1,14 +1,14 @@
 {
   "name": "playlist-transfer-backend",
   "version": "1.0.0",
-  "type": "module",
   "description": "Backend for playlist transfer SaaS",
-  "main": "index.js",
+  "main": "dist/handler.json",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/local-server.js",
+    "dev": "webpack --config webpack.local.config.js --watch & nodemon dist/local-server.js",
+    "build": "webpack --config webpack.config.js",
+    "clean": "rm -rf dist",
+    "start": "node dist/handler.js",
     "start-offline-serverless": "sls offline start",
-    "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/local-server.ts",
     "lint": "eslint 'src/**/*.ts'",
     "test": "echo 'no tests yet!'"
   },
@@ -34,8 +34,14 @@
     "npm": "^11.6.0",
     "prettier": "^3.6.2",
     "serverless-offline": "^14.4.0",
+    "ts-loader": "^9.5.4",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "tsconfig-paths-webpack-plugin": "^4.2.0",
+    "typescript": "^5.9.2",
+    "webpack": "^5.101.3",
+    "webpack-cli": "^6.0.1",
+    "webpack-dev-middleware": "^7.4.3",
+    "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
     "serverless-http": "^4.0.0"

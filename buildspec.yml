@@ -19,7 +19,9 @@ phases:
       - cp -r dist/* node_modules package.json artifact/
       - cd artifact
       - zip -r function.zip * > /dev/null 2>&1
+      - echo Uploading to S3...
       - aws s3 cp function.zip s3://playlist-transfer-artifact-bucket/function.zip
+
 artifacts:
   files:
     - artifact/function.zip

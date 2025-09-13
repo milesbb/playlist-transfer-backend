@@ -1,13 +1,17 @@
 {
-  // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",
 
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "target": "es2024",
+    "target": "es2022",
+    "module": "esnext",
+    "moduleResolution": "node",
     "types": [],
+    "baseUrl": "src",
+    "paths": {
+      "@controllers/*": ["controllers/*"],
+      "@routes/*": ["routes/*"]
+    },
 
     "sourceMap": true,
     "declaration": true,
@@ -16,14 +20,11 @@
     "exactOptionalPropertyTypes": true,
     "strict": true,
     "jsx": "preserve",
-    "verbatimModuleSyntax": true,
     "isolatedModules": true,
-    "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "allowImportingTsExtensions": false
+    "forceConsistentCasingInFileNames": true
   }
 }

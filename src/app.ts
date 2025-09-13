@@ -1,6 +1,6 @@
 import express from 'express';
-import healthRoutes from './routes/healthRoutes.js';
-import { errorHandler } from './middlewares/errorHandler.js';
+import healthRoutes from '@routes/healthRoutes';
+import { errorHandler } from './middlewares/errorHandler';
 
 const app = express();
 
