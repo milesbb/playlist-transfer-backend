@@ -9,22 +9,19 @@ phases:
       - npm ci
   build:
     commands:
-      - echo Building TypeScript project...
+      - echo Building Typescript backend with webpack...
       - npm run build
+      - echo Running tests...
       - npm test
+      - echo Finished running tests!
   post_build:
     commands:
       - echo Packaging Lambda...
       - mkdir -p artifact
-      # Copy built files, node_modules, and package.json directly into artifact
       - cp -r dist/* node_modules package.json artifact/
       - cd artifact
-      # Zip contents of artifact folder so that handler.js is at zip root
-      - zip -r ../function.zip . > /dev/null 2>&1
-      - cd ..
-      - echo Uploading to S3...
-      - aws s3 cp function.zip s3://playlist-transfer-artifact-bucket/function.zip
+      - zip -r ../application.zip . > /dev/null 2>&1
 
 artifacts:
   files:
-    - function.zip
+    - application.zip
