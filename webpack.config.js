@@ -24,7 +24,7 @@ export default {
     plugins: [new TsconfigPathsPlugin()],
   },
   output: {
-    filename: 'lambda.js',
+    filename: 'lambda.mjs',
     path: path.resolve(__dirname, 'dist'),
     libraryTarget: 'commonjs2',
   },

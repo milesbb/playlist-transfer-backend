@@ -5,7 +5,7 @@ Description: CI/CD Pipeline for TypeScript Node.js Express Lambda Playlist Trans
 Globals:
   Function:
     Runtime: nodejs20.x
-    Handler: handler.handler
+    Handler: lambda.handler
     Timeout: 15
     MemorySize: 256
 
