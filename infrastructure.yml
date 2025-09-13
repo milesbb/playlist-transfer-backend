@@ -177,7 +177,6 @@ Resources:
                 StackName: !Sub '${AWS::StackName}'
                 TemplatePath: BuildOutput::output-template.yml
                 Capabilities: CAPABILITY_NAMED_IAM
-                RoleArn: !GetAtt PlaylistTransferCodePipelineRole.Arn
               RunOrder: 1
             - Name: DeployChangeSet
               ActionTypeId:
