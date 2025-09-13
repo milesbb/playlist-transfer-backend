@@ -16,12 +16,10 @@ phases:
       - echo Finished running tests!
   post_build:
     commands:
-      - echo Packaging Lambda...
-      - mkdir -p artifact
-      - cp -r dist/* node_modules package.json artifact/
-      - cd artifact
-      - zip -r ../application.zip . > /dev/null 2>&1
+      - zip -qr application.zip dist/* node_modules package.json
+      - aws cloudformation package --s3-bucket playlist-transfer-artifact-bucket --output-template output-template.yml
 
 artifacts:
   files:
     - application.zip
+    - output-template.yml
