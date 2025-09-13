@@ -29,8 +29,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: PlaylistTransferApiFunction
-      CodeUri: s3://playlist-transfer-artifact-bucket/function.zip
-      CodeUri: s3://playlist-transfer-artifact-bucket/function.zip
+      CodeUri: s3://placeholder-playlist-bucket/function.zip
+      # CodeUri: s3://playlist-transfer-artifact-bucket/function.zip
       # CodeUri: application.zip
       Role: !GetAtt PlaylistTransferLambdaExecutionRole.Arn
       Architectures:
@@ -113,6 +113,10 @@ Resources:
             Principal:
               Service: codepipeline.amazonaws.com
             Action: sts:AssumeRole
+          - Effect: Allow
+            Principal:
+              Service: cloudformation.amazonaws.com
+            Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonS3FullAccess
         - arn:aws:iam::aws:policy/AWSCodeBuildDeveloperAccess
@@ -123,6 +127,7 @@ Resources:
 
   PlaylistTransferPipeline:
     Type: AWS::CodePipeline::Pipeline
+    DependsOn: PlaylistTransferCodePipelineRole
     Properties:
       Name: !Sub '${AWS::StackName}-Pipeline'
       RoleArn: !GetAtt PlaylistTransferCodePipelineRole.Arn
