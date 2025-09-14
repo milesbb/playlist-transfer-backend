@@ -26,6 +26,7 @@
   "devDependencies": {
     "@types/express": "^5.0.3",
     "@types/node": "^24.3.3",
+    "@types/pg": "^8.15.5",
     "dotenv": "^17.2.2",
     "eslint": "^9.35.0",
     "express": "^5.1.0",
@@ -44,6 +45,13 @@
     "webpack-node-externals": "^3.0.0"
   },
   "dependencies": {
-    "serverless-http": "^4.0.0"
+    "@aws-sdk/client-ssm": "^3.888.0",
+    "argon2": "^0.44.0",
+    "cookie-parser": "^1.4.7",
+    "jsonwebtoken": "^9.0.2",
+    "pg": "^8.16.3",
+    "serverless-http": "^4.0.0",
+    "uuid": "^13.0.0",
+    "winston": "^3.17.0"
   }
 }
