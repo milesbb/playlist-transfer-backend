@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 
-// Check health of API
+// Checks health of API
 
 export const checkApiHealth = (
   req: Request,
