@@ -21,6 +21,17 @@ Resources:
       BucketName: 'playlist-transfer-artifact-bucket'
       VersioningConfiguration:
         Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: FullDeletionRule
+            Status: Enabled
+            Filter: {}
+            ExpirationInDays: 1
+            NoncurrentVersionExpiration:
+              NoncurrentDays: 1
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 1
+            DeleteMarkerReplication: false
       # Tags:
       #   - Key: project
       #     Value: playlist-transfer
