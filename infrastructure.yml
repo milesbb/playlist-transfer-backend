@@ -37,12 +37,12 @@ Resources:
       Environment:
         Variables:
           NODE_ENV: production
-          DB_HOST: !Sub '{{resolve:ssm-secure:/playlistTransfer/db/host:1}}'
-          DB_NAME: !Sub '{{resolve:ssm-secure:/playlistTransfer/db/name:1}}'
-          DB_PASS: !Sub '{{resolve:ssm-secure:/playlistTransfer/db/password:1}}'
-          DB_PORT: !Sub '{{resolve:ssm-secure:/playlistTransfer/db/port:1}}'
-          DB_URI: !Sub '{{resolve:ssm-secure:/playlistTransfer/db/uri:1}}'
-          DB_USER: !Sub '{{resolve:ssm-secure:/playlistTransfer/db/user:1}}'
+          DB_HOST_PARAM: /playlistTransfer/db/host
+          DB_NAME_PARAM: /playlistTransfer/db/name
+          DB_PASS_PARAM: /playlistTransfer/db/password
+          DB_PORT_PARAM: /playlistTransfer/db/port
+          DB_URI_PARAM: /playlistTransfer/db/uri
+          DB_USER_PARAM: /playlistTransfer/db/user
       Events:
         Api:
           Type: Api
