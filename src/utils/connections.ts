@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { Pool, PoolClient } from 'pg';
 import { v4 as uuid4 } from 'uuid';
 import logger from './logging';
@@ -7,7 +9,7 @@ let pool: Pool = undefined as unknown as Pool;
 
 let numOpenConnections = 0;
 
-const getPool = async (): Promise<Pool> => {
+export const getPool = async (): Promise<Pool> => {
   if (!pool) {
     const databaseParameters = await getDatabaseParameters();
 
@@ -89,6 +91,6 @@ export const release = (connection: PoolClient) => {
     }
     logger.info('Released Successfully');
   } catch (error) {
-    logger.info('No connection to release!');
+    logger.info('No connection to release!', error);
   }
 };

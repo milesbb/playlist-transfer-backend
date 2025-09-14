@@ -2,15 +2,21 @@
   "compilerOptions": {
     "rootDir": "./src",
     "outDir": "./dist",
-
+    "esModuleInterop": true,
+    // "target": "es2022",
+    // "module": "esnext",
     "target": "es2022",
-    "module": "esnext",
-    "moduleResolution": "node",
-    "types": [],
+    "module": "commonjs",
+    // "moduleResolution": "node",
+    "types": ["node", "vitest/globals"],
     "baseUrl": "src",
     "paths": {
       "@controllers/*": ["controllers/*"],
-      "@routes/*": ["routes/*"]
+      "@routes/*": ["routes/*"],
+      "@middlewares/*": ["middlewares/*"],
+      "@data/*": ["data/*"],
+      "@service/*": ["service/*"],
+      "@utils/*": ["utils/*"]
     },
 
     "sourceMap": true,
@@ -24,7 +30,8 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
-    "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true
-  }
+  },
+  "include": ["src/**/*.ts", "src/tests/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }

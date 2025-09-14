@@ -44,7 +44,7 @@ export const getDatabaseParameters = async (): Promise<DatabaseParameters> => {
       uri,
       user,
     };
-  } catch (error) {
+  } catch {
     throw Error('Failed to fetch database params from AWS SSM.');
   }
 };
