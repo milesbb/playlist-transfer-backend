@@ -15,4 +15,6 @@ phases:
   build:
     commands:
       - echo "Running Flyway migrations against Postgres DB..."
+      - echo $DB_USER
+      - echo $DB_URI
       - docker run --rm -v $(pwd)/migrations:/flyway/sql -e FLYWAY_URL=$DB_URI -e FLYWAY_USER=$DB_USER -e FLYWAY_PASSWORD=$DB_PASS flyway/flyway:10 migrate
