@@ -18,23 +18,20 @@ The project's main goal is to make it easy for people to archive and transfer th
 
 ## Features
 
+- Infrastructure-as-Code - No need to manually changeset/deploy `.yml` changes, they're picked up and automatically applied via pipeline on push
 - Node.js + Express API hosted on AWS Lambda
 - Serverless API via API Gateway
 - Automatic CI/CD with CodePipeline and CodeBuild
-- Infrastructure managed via IaC (CloudFormation/Terraform)
-- Automatic deployment on code push
-- IAM roles configured for least privilege access
-- S3 bucket for artifact storage
-
-## Architecture
+- Packaging with webpack both locally and in the cloud
 
 **CI/CD Flow:**
 
 1. Developer pushes code to repository
 2. CodePipeline triggers CodeBuild
-3. CodeBuild builds and packages Lambda function
-4. Lambda is updated automatically
-5. Changes are reflected immediately in the running API
+3. CodeBuild builds and packages any non `.yml` code changes and gives it to lambda
+4. Any infrastructure `.yml` code changes are picked up and automatically changesetted and deployed in pipeline. Will fail on changeset if anything is wrong.
+
+Results in quick turnaround for code changes being surfaced in API and infrastructure!
 
 ---
 
