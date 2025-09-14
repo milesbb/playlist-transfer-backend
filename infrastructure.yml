@@ -102,11 +102,47 @@ Resources:
             Principal:
               Service: codebuild.amazonaws.com
             Action: sts:AssumeRole
+      Policies:
+        - PolicyName: SSMReadParameterPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                  - ssm:GetParameters
+                  - ssm:GetParametersByPath
+                Resource:
+                  - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/host
+                  - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/name
+                  - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/password
+                  - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/port
+                  - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/uri
+                  - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/user
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonS3FullAccess
         - arn:aws:iam::aws:policy/AWSLambda_FullAccess
         - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
         - arn:aws:iam::aws:policy/AWSCloudFormationFullAccess
+
+  PlaylistTransferMigrateProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Name: !Sub '${AWS::StackName}-Migrate'
+      ServiceRole: !GetAtt PlaylistTransferCodeBuildRole.Arn
+      Artifacts:
+        Type: NO_ARTIFACTS
+      Environment:
+        Type: LINUX_CONTAINER
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:7.0
+        PrivilegedMode: true
+        EnvironmentVariables:
+          - Name: FLYWAY_SCHEMAS
+            Value: public
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: buildspec-migrate.yml
 
   PlaylistTransferBuildProject:
     Type: AWS::CodeBuild::Project
@@ -156,73 +192,85 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonSSMFullAccess
 
   PlaylistTransferPipeline:
-    Type: AWS::CodePipeline::Pipeline
-    DependsOn: PlaylistTransferCodePipelineRole
-    Properties:
-      Name: !Sub '${AWS::StackName}-Pipeline'
-      RoleArn: !GetAtt PlaylistTransferCodePipelineRole.Arn
-      # Tags:
-      #   - Key: project
-      #     Value: playlist-transfer
-      ArtifactStore:
-        Type: S3
-        Location: !Ref PlaylistTransferArtifactBucket
-      Stages:
-        - Name: Source
-          Actions:
-            - Name: GitHubSource
-              ActionTypeId:
-                Category: Source
-                Owner: ThirdParty
-                Provider: GitHub
-                Version: 1
-              OutputArtifacts:
-                - Name: SourceOutput
-              Configuration:
-                Owner: milesbb
-                Repo: playlist-transfer-backend
-                Branch: main
-                OAuthToken: !Ref GitHubToken
-        - Name: Build
-          Actions:
-            - Name: BuildAction
-              ActionTypeId:
-                Category: Build
-                Owner: AWS
-                Provider: CodeBuild
-                Version: 1
-              InputArtifacts:
-                - Name: SourceOutput
-              OutputArtifacts:
-                - Name: BuildOutput
-              Configuration:
-                ProjectName: !Ref PlaylistTransferBuildProject
-        - Name: Deploy
-          Actions:
-            - Name: CreateChangeSet
-              ActionTypeId:
-                Category: Deploy
-                Owner: AWS
-                Provider: CloudFormation
-                Version: 1
-              InputArtifacts:
-                - Name: BuildOutput
-              Configuration:
-                RoleArn: !GetAtt PlaylistTransferCodePipelineRole.Arn
-                ChangeSetName: !Sub '${AWS::StackName}-Changeset'
-                ActionMode: CHANGE_SET_REPLACE
-                StackName: !Sub '${AWS::StackName}'
-                TemplatePath: BuildOutput::output-template.yml
-                Capabilities: CAPABILITY_NAMED_IAM
-              RunOrder: 1
-            - Name: DeployChangeSet
-              ActionTypeId:
-                Category: Deploy
-                Owner: AWS
-                Provider: CloudFormation
-                Version: 1
-              Configuration:
-                ChangeSetName: !Sub '${AWS::StackName}-Changeset'
-                ActionMode: CHANGE_SET_EXECUTE
-                StackName: !Sub '${AWS::StackName}'
-              RunOrder: 2
+  Type: AWS::CodePipeline::Pipeline
+  DependsOn: PlaylistTransferCodePipelineRole
+  Properties:
+    Name: !Sub '${AWS::StackName}-Pipeline'
+    RoleArn: !GetAtt PlaylistTransferCodePipelineRole.Arn
+    ArtifactStore:
+      Type: S3
+      Location: !Ref PlaylistTransferArtifactBucket
+    Stages:
+      - Name: Source
+        Actions:
+          - Name: GitHubSource
+            ActionTypeId:
+              Category: Source
+              Owner: ThirdParty
+              Provider: GitHub
+              Version: 1
+            OutputArtifacts:
+              - Name: SourceOutput
+            Configuration:
+              Owner: milesbb
+              Repo: playlist-transfer-backend
+              Branch: main
+              OAuthToken: !Ref GitHubToken
+
+      - Name: Migrate
+        Actions:
+          - Name: FlywayMigrate
+            ActionTypeId:
+              Category: Build
+              Owner: AWS
+              Provider: CodeBuild
+              Version: 1
+            InputArtifacts:
+              - Name: SourceOutput
+            Configuration:
+              ProjectName: !Ref PlaylistTransferMigrateProject
+            RunOrder: 1
+      - Name: Build
+        Actions:
+          - Name: BuildAction
+            ActionTypeId:
+              Category: Build
+              Owner: AWS
+              Provider: CodeBuild
+              Version: 1
+            InputArtifacts:
+              - Name: SourceOutput
+            OutputArtifacts:
+              - Name: BuildOutput
+            Configuration:
+              ProjectName: !Ref PlaylistTransferBuildProject
+            RunOrder: 1
+      - Name: Deploy
+        Actions:
+          - Name: CreateChangeSet
+            ActionTypeId:
+              Category: Deploy
+              Owner: AWS
+              Provider: CloudFormation
+              Version: 1
+            InputArtifacts:
+              - Name: BuildOutput
+            Configuration:
+              RoleArn: !GetAtt PlaylistTransferCodePipelineRole.Arn
+              ChangeSetName: !Sub '${AWS::StackName}-Changeset'
+              ActionMode: CHANGE_SET_REPLACE
+              StackName: !Sub '${AWS::StackName}'
+              TemplatePath: BuildOutput::output-template.yml
+              Capabilities: CAPABILITY_NAMED_IAM
+            RunOrder: 1
+          - Name: DeployChangeSet
+            ActionTypeId:
+              Category: Deploy
+              Owner: AWS
+              Provider: CloudFormation
+              Version: 1
+            Configuration:
+              ChangeSetName: !Sub '${AWS::StackName}-Changeset'
+              ActionMode: CHANGE_SET_EXECUTE
+              StackName: !Sub '${AWS::StackName}'
+            RunOrder: 2

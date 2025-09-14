@@ -1,0 +1,23 @@
+version: 0.2
+
+env:
+  parameter-store:
+    DB_PASS: /playlistTransfer/db/password
+    DB_URI: /playlistTransfer/db/uri
+    DB_USER: /playlistTransfer/db/user
+
+phases:
+  install:
+    commands:
+      - echo "Starting Docker daemon..."
+      - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --storage-driver=overlay2&
+      - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
+  build:
+    commands:
+      - echo "Running Flyway migrations against Postgres DB..."
+      - docker run --rm \
+        -v $(pwd)/migrations:/flyway/sql \
+        -e FLYWAY_URL=$DB_URI \
+        -e FLYWAY_USER=$DB_USER \
+        -e FLYWAY_PASSWORD=$DB_PASS \
+        flyway/flyway:10 migrate
