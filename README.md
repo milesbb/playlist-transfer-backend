@@ -1,6 +1,6 @@
 # Playlist Transfer Backend
 
-This repository contains the **backend** for the Playlist Transfer app, built using **Node.js** and **Express**, deployed as an **AWS Lambda** function with **API Gateway**. The infrastructure is fully automated using **Infrastructure as Code (IaC)**, including **CodePipeline**, **CodeBuild**, **IAM**, **S3**, and **Lambda**. Packaging done with **webpack** and DB uses **PostgreSQL**. Tests run with **Vitest**.
+This repository contains the **backend** for the Playlist Transfer app, built using **Node.js** and **Express**, deployed as an **AWS Lambda** function with **API Gateway**. The infrastructure is fully automated using **Infrastructure as Code (IaC)**, including **CodePipeline**, **CodeBuild**, **IAM**, **S3**, and **Lambda**. Packaging done with **webpack** and DB uses **PostgreSQL** and migrations done with **Flyway** that auto update in pipeline. Tests run with **Vitest**.
 
 The project's main goal is to make it easy for people to archive and transfer their music playlists between apps. Down with the walls between music providers!
 
@@ -19,6 +19,7 @@ The project's main goal is to make it easy for people to archive and transfer th
 ## Features
 
 - Infrastructure-as-Code - No need to manually changeset/deploy `.yml` changes, they're picked up and automatically applied via pipeline on push
+- All database migrations automatically update in pipeline
 - Node.js + Express API hosted on AWS Lambda
 - Serverless API via API Gateway
 - Automatic CI/CD with CodePipeline and CodeBuild
@@ -28,8 +29,9 @@ The project's main goal is to make it easy for people to archive and transfer th
 
 1. Developer pushes code to repository
 2. CodePipeline triggers CodeBuild
-3. CodeBuild builds and packages any non `.yml` code changes and gives it to lambda
-4. Any infrastructure `.yml` code changes are picked up and automatically changesetted and deployed in pipeline. Will fail on changeset if anything is wrong.
+3. Any new migrations run on db via flyway and docker in CodeBuild
+4. CodeBuild builds and packages any non `.yml` code changes and gives it to lambda
+5. Any infrastructure `.yml` code changes are picked up and automatically changesetted and deployed in pipeline. Will fail on changeset if anything is wrong.
 
 Results in quick turnaround for code changes being surfaced in API and infrastructure!
 
