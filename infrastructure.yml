@@ -131,7 +131,7 @@ Resources:
       Name: !Sub '${AWS::StackName}-Migrate'
       ServiceRole: !GetAtt PlaylistTransferCodeBuildRole.Arn
       Artifacts:
-        Type: NO_ARTIFACTS
+        Type: CODEPIPELINE
       Environment:
         Type: LINUX_CONTAINER
         ComputeType: BUILD_GENERAL1_SMALL
