@@ -55,7 +55,7 @@ To run locally
 npm run start-offline-serverless
 ```
 
-# Triggering the pipeline and updating the lambda/buildspec
+# Triggering the pipeline and updating the code and/or cloud resources
 
 You can simply do this via pushing a commit.
 
@@ -65,19 +65,19 @@ git commit -m "Useful message" # avoid 'fixed x' or 'changed x'
 git push origin main
 ```
 
-The lambda will automatically be updated given the pipeline completes. If you push changes to the `buildspec.yml` file, they will automatically apply in the pipeline execution.
+All changes (including changes to `infrastructure.yml` or `buildspec.yml`) will automatically update all relevant existing cloud resources.
 
 You can check build logs in AWS codebuild.
 
-# Deploying/Changing AWS Resources
+# Manually Deploying/Changing AWS Resources
 
-To deploy, run:
+To manually deploy, run:
 
 ```bash
 aws cloudformation deploy --template-file infrastructure.yml --stack-name PlaylistTransferStack --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM --region eu-west-2
 ```
 
-To changeset, run:
+To manually changeset, run:
 
 ```bash
 aws cloudformation create-change-set --stack-name PlaylistTransferStack --change-set-name {ADD NAME} --template-body file://infrastructure.yml --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM --region eu-west-2
