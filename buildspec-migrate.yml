@@ -2,9 +2,9 @@ version: 0.2
 
 env:
   parameter-store:
-    DB_PASS: /playlistTransfer/db/password
-    DB_URI: /playlistTransfer/db/uri
-    DB_USER: /playlistTransfer/db/user
+    DB_PASS: '/playlistTransfer/db/password'
+    DB_URI: '/playlistTransfer/db/uri'
+    DB_USER: '/playlistTransfer/db/user'
 
 phases:
   install:
