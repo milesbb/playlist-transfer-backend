@@ -3,7 +3,7 @@ import { v4 as uuid4 } from 'uuid';
 import logger from './logging';
 import { getDatabaseParameters } from './aws/parameters';
 
-let pool: Pool = undefined;
+let pool: Pool = undefined as unknown as Pool;
 
 let numOpenConnections = 0;
 
@@ -48,7 +48,6 @@ export const query = async <T = any>(
   queryParams: any,
   connection: PoolClient,
 ): Promise<T> => {
-  // log here
   const queryId = uuid4();
   const trimmedQuery = queryText.substring(0, 500);
   const detailsToLog = {
@@ -59,8 +58,11 @@ export const query = async <T = any>(
   logger.info('Querying db with: ', detailsToLog);
 
   try {
-    const results = await connection.query(queryText, queryParams);
-    return results[0] as unknown as T;
+    const results = (await connection.query<T[]>(
+      queryText,
+      queryParams,
+    )) as any;
+    return results[0];
   } catch (error) {
     logger.error(`Query errored: `, error);
     throw error;
@@ -76,7 +78,7 @@ export const queryOne = async <T = any>(
   if (results.length !== 1) {
     throw Error('More than 1 results returned during query 1.');
   }
-  return results[0];
+  return results[0] as unknown as T;
 };
 
 export const release = (connection: PoolClient) => {
