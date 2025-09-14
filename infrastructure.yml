@@ -23,15 +23,13 @@ Resources:
         Status: Enabled
       LifecycleConfiguration:
         Rules:
-          - Id: FullDeletionRule
+          - Id: DeleteObjsAfter24Hours
             Status: Enabled
-            Filter: {}
             ExpirationInDays: 1
             NoncurrentVersionExpiration:
               NoncurrentDays: 1
             AbortIncompleteMultipartUpload:
               DaysAfterInitiation: 1
-            DeleteMarkerReplication: false
       # Tags:
       #   - Key: project
       #     Value: playlist-transfer
