@@ -98,7 +98,7 @@ playlist-transfer-backend/
 │   ├─ data/          # Database interactions
 │   └─ serverless.ts  # Lambda entry point
 │
-├─ infrastructure/    # IaC templates (CloudFormation/Terraform)
+├─ infrastructure.yml    # IaC template with pipeline, lambda, and other resources
 ├─ buildspec.yml      # CodeBuild build spec
 ├─ package.json
 └─ README.md
