@@ -27,6 +27,7 @@ Resources:
 
   PlaylistTransferApiFunction:
     Type: AWS::Serverless::Function
+    DependsOn: PlaylistTransferLambdaExecutionRole
     Properties:
       FunctionName: PlaylistTransferApiFunction
       CodeUri: application.zip
@@ -36,6 +37,12 @@ Resources:
       Environment:
         Variables:
           NODE_ENV: production
+          DB_HOST: !Sub '{{resolve:ssm-secure:/playlistTransfer/db/host:1}}'
+          DB_NAME: !Sub '{{resolve:ssm-secure:/playlistTransfer/db/name:1}}'
+          DB_PASS: !Sub '{{resolve:ssm-secure:/playlistTransfer/db/password:1}}'
+          DB_PORT: !Sub '{{resolve:ssm-secure:/playlistTransfer/db/port:1}}'
+          DB_URI: !Sub '{{resolve:ssm-secure:/playlistTransfer/db/uri:1}}'
+          DB_USER: !Sub '{{resolve:ssm-secure:/playlistTransfer/db/user:1}}'
       Events:
         Api:
           Type: Api
@@ -56,6 +63,21 @@ Resources:
             Principal:
               Service: lambda.amazonaws.com
             Action: sts:AssumeRole
+      Policies:
+        - PolicyName: SSMReadParameterPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ssm:GetParameter
+                Resource:
+                  - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/host
+                  - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/name
+                  - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/password
+                  - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/port
+                  - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/uri
+                  - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/user
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
