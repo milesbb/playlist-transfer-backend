@@ -12,11 +12,11 @@
     "baseUrl": "src",
     "paths": {
       "@controllers/*": ["controllers/*"],
-      "@routes/*": ["routes/*"],
       "@middlewares/*": ["middlewares/*"],
       "@data/*": ["data/*"],
       "@service/*": ["service/*"],
-      "@utils/*": ["utils/*"]
+      "@utils/*": ["utils/*"],
+      "@typeDefs/*": ["typeDefs/*"]
     },
 
     "sourceMap": true,

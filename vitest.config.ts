@@ -23,12 +23,12 @@ export default defineConfig({
   resolve: {
     alias: {
       '@utils': fileURLToPath(new URL('./src/utils', import.meta.url)),
+      '@typeDefs': fileURLToPath(new URL('./src/typeDefs', import.meta.url)),
       '@controllers': fileURLToPath(
         new URL('./src/controllers', import.meta.url),
       ),
       '@service': fileURLToPath(new URL('./src/service', import.meta.url)),
       '@data': fileURLToPath(new URL('./src/data', import.meta.url)),
-      '@routes': fileURLToPath(new URL('./src/routes', import.meta.url)),
       '@middlewares': fileURLToPath(
         new URL('./src/middlewares', import.meta.url),
       ),

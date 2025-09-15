@@ -1,15 +1,11 @@
-import type { Request, Response, NextFunction } from 'express';
+import { Router, Response } from 'express';
 
-// Checks health of API
+export const healthRoutePath = '/v1/health';
 
-export const checkApiHealth = (
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  try {
-    res.json({ isHealthCheckComplete: true });
-  } catch (error) {
-    next(error);
-  }
-};
+const router = Router();
+
+router.get('/', (res: Response) => {
+  res.json({ isHealthCheckComplete: true });
+});
+
+export default router;

@@ -1,7 +1,6 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
-// import authRoutes from '@routes/authRoutes';
-import healthRoutes from '@routes/healthRoutes';
+import routers from '@controllers/index';
 import { errorHandler } from './middlewares/errorHandler';
 
 const app = express();
@@ -10,8 +9,7 @@ app.use(express.json());
 
 app.use(cookieParser());
 
-// app.use('/auth', authRoutes);
-app.use('/playlist-transfer-api/health', healthRoutes);
+routers.forEach((router) => app.use(router.path, ...router.handlers));
 
 app.use(errorHandler);
 
