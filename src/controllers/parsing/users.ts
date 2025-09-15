@@ -6,7 +6,7 @@ export const parseUserCreateRequest = async (
   body: any,
 ): Promise<CreateUserData> => {
   const passwordHash = await hashPassword(
-    parseString(body.passwordHash, 'passwordHash', false),
+    parseString(body.password, 'password', false),
   );
   return {
     username: parseString(body.username, 'username', false),

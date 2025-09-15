@@ -7,6 +7,7 @@ import {
   UserIdentificationData,
 } from '@typeDefs/users';
 import { parseColumnValue } from './utils';
+import { ErrorVariants } from '@utils/errorTypes';
 
 export const createUser = async (
   userData: CreateUserData,
@@ -70,7 +71,7 @@ export const getUser = async (
     searchString = `WHERE username = $1`;
     queryParams = [userData.username];
   } else {
-    throw new Error(
+    throw ErrorVariants.UsersError(
       'No valid email or username to search for user by during getUser!',
     );
   }

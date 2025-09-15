@@ -3,6 +3,7 @@ import { getConnection, release } from '@utils/connections';
 import { PoolClient } from 'pg';
 import * as usersDataLayer from '@data/users';
 import logger from '@utils/logging';
+import { ErrorVariants } from '@utils/errorTypes';
 
 export const createUser = async (userData: CreateUserData) => {
   let connection: PoolClient = undefined as unknown as PoolClient;
@@ -20,7 +21,7 @@ export const createUser = async (userData: CreateUserData) => {
     logger.info('Uniqueness results:', uniquenessResults);
 
     if (uniquenessResults.emailTaken || uniquenessResults.usernameTaken) {
-      throw new Error('Username or email already taken!');
+      throw ErrorVariants.UsersError('Username or email already taken!');
     }
 
     await usersDataLayer.createUser(userData, connection);

@@ -1,7 +1,9 @@
+import { ErrorVariants } from '@utils/errorTypes';
+
 export const parseColumnValue = (row: any, colName: string) => {
   const value = row[colName];
   if (value == undefined) {
-    throw new Error(
+    throw ErrorVariants.ParsingError(
       `column ${colName} not found in row: ${Object.keys(row).join(', ')}`,
     );
   }

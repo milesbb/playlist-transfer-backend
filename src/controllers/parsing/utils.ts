@@ -1,3 +1,5 @@
+import { ErrorVariants } from '@utils/errorTypes';
+
 export const parseString = <T extends boolean = false>(
   value: unknown,
   name: string,
@@ -7,11 +9,11 @@ export const parseString = <T extends boolean = false>(
     if (optional) {
       return undefined as any;
     }
-    throw new Error(`String field '${name}' is undefined.`);
+    throw ErrorVariants.ParsingError(`String field '${name}' is undefined.`);
   }
 
   if (typeof value !== 'string') {
-    throw new Error(
+    throw ErrorVariants.ParsingError(
       `Expected string for field '${name}' and got ${typeof value}`,
     );
   }
@@ -19,7 +21,7 @@ export const parseString = <T extends boolean = false>(
   const trimmed = value.trim();
 
   if (!trimmed && !optional) {
-    throw new Error(`Got empty string for field '${name}'`);
+    throw ErrorVariants.ParsingError(`Got empty string for field '${name}'`);
   }
 
   return trimmed as any;

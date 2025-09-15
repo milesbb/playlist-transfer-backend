@@ -1,26 +1,29 @@
 import { createUser, getUser } from '@service/users';
-import { Router, Response, Request } from 'express';
+import { Router, Response, Request, NextFunction } from 'express';
 import { parseGetUserRequest, parseUserCreateRequest } from './parsing/users';
 
 export const usersRoutePath = '/v1/users';
 
 const router = Router();
 
-router.post('/register', async (req: Request, res: Response) => {
-  try {
-    const createUserData = await parseUserCreateRequest(req.body);
+router.post(
+  '/register',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const createUserData = await parseUserCreateRequest(req.body);
 
-    await createUser(createUserData);
+      await createUser(createUserData);
 
-    res.status(200).json({
-      userCreated: true,
-    });
-  } catch (error) {
-    res.status(500).json({ error });
-  }
-});
+      res.status(200).json({
+        userCreated: true,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
-router.get('/user', async (req: Request, res: Response) => {
+router.get('/user', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const getUserData = parseGetUserRequest(req.body);
 
@@ -29,7 +32,7 @@ router.get('/user', async (req: Request, res: Response) => {
     res.status(200);
     res.json(user);
   } catch (error) {
-    res.status(500).json({ error });
+    next(error);
   }
 });
 

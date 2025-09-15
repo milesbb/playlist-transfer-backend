@@ -6,7 +6,7 @@ describe('parseUserCreateRequest', () => {
     const body = {
       username: 'alice',
       email: 'alice@example.com',
-      passwordHash: '  myPassword  ',
+      password: '  myPassword  ',
     };
 
     const result = await parseModule.parseUserCreateRequest(body);
@@ -26,7 +26,7 @@ describe('parseUserCreateRequest', () => {
     };
 
     await expect(parseModule.parseUserCreateRequest(body)).rejects.toThrow(
-      "String field 'passwordHash' is undefined.",
+      "Something went wrong when parsing: String field 'password' is undefined.",
     );
   });
 
@@ -38,7 +38,7 @@ describe('parseUserCreateRequest', () => {
     };
 
     await expect(parseModule.parseUserCreateRequest(body)).rejects.toThrow(
-      "Got empty string for field 'username'",
+      "Something went wrong when parsing: String field 'password' is undefined.",
     );
   });
 });

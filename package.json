@@ -16,7 +16,8 @@
     "check-types": "tsc --noEmit --skipLibCheck",
     "lint-type-check": "npm run lint && npm run check-types",
     "vitest": "vitest",
-    "test": "npm run lint-type-check && npm run vitest"
+    "test": "npm run lint-type-check && npm run vitest",
+    "test-wl": "npm run lint-type-check && npm run vitest --watch"
   },
   "repository": {
     "type": "git",
