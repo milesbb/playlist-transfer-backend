@@ -59,6 +59,7 @@ Resources:
                   - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/password
                   - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/port
                   - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/uri
+                  - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/url
                   - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/user
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
@@ -81,6 +82,7 @@ Resources:
           DB_PASS_PARAM: /playlistTransfer/db/password
           DB_PORT_PARAM: /playlistTransfer/db/port
           DB_URI_PARAM: /playlistTransfer/db/uri
+          DB_URL_PARAM: /playlistTransfer/db/url
           DB_USER_PARAM: /playlistTransfer/db/user
       Events:
         Api:
@@ -118,6 +120,7 @@ Resources:
                   - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/password
                   - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/port
                   - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/uri
+                  - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/url
                   - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/user
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonS3FullAccess
