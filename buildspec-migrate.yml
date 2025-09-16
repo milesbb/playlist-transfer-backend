@@ -3,7 +3,7 @@ version: 0.2
 env:
   parameter-store:
     DB_PASS: '/playlistTransfer/db/password'
-    DB_URI: '/playlistTransfer/db/uri'
+    DB_URL: '/playlistTransfer/db/url'
     DB_USER: '/playlistTransfer/db/user'
 
 phases:
@@ -15,4 +15,4 @@ phases:
   build:
     commands:
       - echo "Running Flyway migrations against Postgres DB..."
-      - docker run --rm -v $(pwd)/migrations:/flyway/sql -e FLYWAY_URL=$DB_URI -e FLYWAY_USER=$DB_USER -e FLYWAY_PASSWORD=$DB_PASS flyway/flyway:10 migrate
+      - docker run --rm -v $(pwd)/migrations:/flyway/sql -e FLYWAY_URL=$DB_URL -e FLYWAY_USER=$DB_USER -e FLYWAY_PASSWORD=$DB_PASS flyway/flyway:10 migrate
