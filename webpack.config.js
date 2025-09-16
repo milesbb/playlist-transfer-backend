@@ -26,7 +26,13 @@ export default {
   output: {
     filename: 'lambda.js',
     path: path.resolve(__dirname, 'dist'),
-    libraryTarget: 'commonjs2',
+    // libraryTarget: 'commonjs2',
+    library: {
+      type: 'module',
+    },
   },
-  externals: [nodeExternals()],
+  experiments: {
+    outputModule: true,
+  },
+  externals: [nodeExternals({ importType: 'module' })],
 };

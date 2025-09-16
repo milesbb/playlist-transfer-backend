@@ -2,6 +2,7 @@
   "name": "playlist-transfer-backend",
   "version": "1.0.0",
   "description": "Backend for playlist transfer SaaS",
+  "type": "module",
   "main": "lambda.js",
   "scripts": {
     "clean": "node ./scripts/clean-dist.js",

@@ -1,4 +1,4 @@
-const fs = require('fs');
+import fs from 'fs';
 const path = 'dist';
 if (fs.existsSync(path)) {
   fs.rmSync(path, { recursive: true, force: true });
