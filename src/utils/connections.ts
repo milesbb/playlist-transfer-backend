@@ -26,7 +26,6 @@ export const getPool = async (): Promise<Pool> => {
       host: databaseParameters.host,
       connectionString: databaseParameters.uri,
       application_name: 'playlist-transfer-backend-lambda',
-      ssl: true,
     });
     pool.on('acquire', () => numOpenConnections++);
     pool.on('release', () => numOpenConnections--);
