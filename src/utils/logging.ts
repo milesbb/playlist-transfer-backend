@@ -4,7 +4,7 @@ const logFormat = winston.format.combine(
   winston.format.timestamp(),
   winston.format.errors({ stack: true }),
   winston.format.splat(),
-  winston.format.json(), // output logs in JSON
+  winston.format.json(),
 );
 
 const logger = winston.createLogger({
