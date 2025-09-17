@@ -45,9 +45,10 @@ describe('User Data Layer', () => {
         passwordHash: 'pw',
       };
 
-      (query as any).mockResolvedValueOnce([
-        { usernameTaken: true, emailTaken: false },
-      ]);
+      (query as any).mockResolvedValueOnce({
+        usernameTaken: true,
+        emailTaken: false,
+      });
 
       const result = await areUsernameAndEmailUnique(userData, mockConnection);
 

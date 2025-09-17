@@ -44,8 +44,8 @@ export const areUsernameAndEmailUnique = async (
   );
 
   return {
-    usernameTaken: parseColumnValue(result[0], 'usernameTaken'),
-    emailTaken: parseColumnValue(result[0], 'emailTaken'),
+    usernameTaken: parseColumnValue(result, 'usernameTaken'),
+    emailTaken: parseColumnValue(result, 'emailTaken'),
   };
 };
 
