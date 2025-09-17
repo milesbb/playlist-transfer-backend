@@ -11,7 +11,7 @@ interface DatabaseParameters {
 
 const ssm = new SSMClient({ region: process.env.AWS_REGION! });
 
-const getSecureParameter = async (name: string): Promise<string> => {
+export const getSecureParameter = async (name: string): Promise<string> => {
   const command = new GetParameterCommand({
     Name: name,
     WithDecryption: true,

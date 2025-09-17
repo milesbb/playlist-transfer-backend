@@ -7,6 +7,7 @@ import * as connections from '@utils/connections';
 import * as authData from '@data/auth';
 import * as userData from '@data/users';
 import { ErrorVariants } from '@utils/errorTypes';
+import { getJWTSecret } from '@utils/aws/auth';
 
 const ACCESS_TOKEN_TTL = process.env.ACCESS_TOKEN_TTL!;
 
@@ -20,6 +21,9 @@ vi.mock('@data/auth', () => ({
   revokeRefreshToken: vi.fn(),
   verifyRefreshToken: vi.fn(),
   generateAccessToken: vi.fn(),
+}));
+vi.mock('@utils/aws/auth', () => ({
+  getJWTSecret: vi.fn(),
 }));
 vi.mock('@data/users', () => ({
   getUser: vi.fn(),
@@ -64,10 +68,11 @@ describe('authService', () => {
   });
 
   describe('generateAccessToken', () => {
-    it('calls jwt.sign and returns token', () => {
+    it('calls jwt.sign and returns token', async () => {
+      (getJWTSecret as any).mockResolvedValue('test-secret');
       (jwt.sign as any).mockReturnValue('token');
       const user = { userId: 1, username: 'alice', passwordHash: 'hash' };
-      const token = authService.generateAccessToken(user as any);
+      const token = await authService.generateAccessToken(user as any);
       expect(jwt.sign).toHaveBeenCalledWith(
         { sub: 1, username: 'alice' },
         process.env.JWT_SECRET,

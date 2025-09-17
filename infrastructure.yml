@@ -84,6 +84,9 @@ Resources:
           DB_URI_PARAM: /playlistTransfer/db/uri
           DB_URL_PARAM: /playlistTransfer/db/url
           DB_USER_PARAM: /playlistTransfer/db/user
+          JWT_SECRET: /playlistTransfer/jwt-secret
+          ACCESS_TOKEN_TTL: '15m'
+
       Events:
         Api:
           Type: Api

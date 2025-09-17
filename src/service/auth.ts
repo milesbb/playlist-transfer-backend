@@ -13,8 +13,8 @@ import { LoginTokens } from '@typeDefs/auth';
 import { getUser } from '@data/users';
 import logger from '@utils/logging';
 import { ErrorVariants } from '@utils/errorTypes';
+import { getJWTSecret } from '@utils/aws/auth';
 
-const JWT_SECRET = process.env.JWT_SECRET!;
 const ACCESS_TOKEN_TTL = process.env.ACCESS_TOKEN_TTL as any | '15m';
 const REFRESH_TOKEN_TTL_DAYS = 30;
 
@@ -23,6 +23,7 @@ export const hashPassword = async (password: string): Promise<string> => {
 };
 
 export const verifyPassword = async (hash: string, password: string) => {
+  logger.info('Verifying password...');
   const passwordResult = await argon2.verify(hash, password);
   if (passwordResult) {
     logger.info('Password verification: passed');
@@ -32,7 +33,10 @@ export const verifyPassword = async (hash: string, password: string) => {
   }
 };
 
-export const generateAccessToken = (user: User): string => {
+export const generateAccessToken = async (user: User): Promise<string> => {
+  logger.info('Generating access token');
+
+  const JWT_SECRET = await getJWTSecret();
   return jwt.sign({ sub: user.userId, username: user.username }, JWT_SECRET, {
     expiresIn: ACCESS_TOKEN_TTL,
   });
@@ -42,12 +46,14 @@ export const generateRefreshToken = async (
   userId: number,
   connection: PoolClient,
 ): Promise<string> => {
+  logger.info('Generating refresh token.');
   const rawToken = crypto.randomBytes(64).toString('hex');
   const tokenHash = await argon2.hash(rawToken);
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + REFRESH_TOKEN_TTL_DAYS);
 
   await addRefreshToken(tokenHash, userId, expiresAt, connection);
+  logger.info('Refresh token generated successfully.');
 
   return rawToken;
 };
@@ -57,17 +63,18 @@ export const verifyRefreshToken = async (
   refreshToken: string,
   connection: PoolClient,
 ) => {
+  logger.info('Verifying refresh token');
   const tokensData = await getRefreshTokens(userId, connection);
-  let relevantToken = undefined;
+
   for (const tokenData of tokensData) {
     if (await argon2.verify(tokenData.tokenHash, refreshToken)) {
-      relevantToken = tokenData;
+      logger.info('Valid refresh token found and validated.');
+      return;
     }
   }
 
-  if (!relevantToken) {
-    throw ErrorVariants.InvalidRefreshToken;
-  }
+  logger.info('Refresh token not found/invalid.');
+  throw ErrorVariants.InvalidRefreshToken;
 };
 
 export const loginUser = async (
@@ -75,13 +82,17 @@ export const loginUser = async (
   userIdData: UserIdentificationData,
 ): Promise<LoginTokens> => {
   let connection: PoolClient = undefined as unknown as PoolClient;
+
+  logger.info('Starting loginUser');
   try {
     connection = await getConnection();
+
+    logger.info('Getting user details.');
     const user = await getUser(userIdData, connection);
 
     await verifyPassword(user.passwordHash, password);
 
-    const accessToken = generateAccessToken(user);
+    const accessToken = await generateAccessToken(user);
     const refreshToken = await generateRefreshToken(user.userId, connection);
 
     return {
@@ -90,6 +101,7 @@ export const loginUser = async (
     };
   } finally {
     release(connection);
+    logger.info('Ending loginUser');
   }
 };
 
@@ -98,9 +110,14 @@ export const refreshUserToken = async (
   refreshToken: string,
 ): Promise<string> => {
   let connection: PoolClient = undefined as unknown as PoolClient;
+
+  logger.info('Starting refreshUserToken');
   try {
     connection = await getConnection();
+
     await verifyRefreshToken(userId, refreshToken, connection);
+
+    logger.info('Getting user details.');
     const user = await getUser(
       {
         userId,
@@ -109,19 +126,24 @@ export const refreshUserToken = async (
       },
       connection,
     );
-    const accessToken = generateAccessToken(user);
+
+    const accessToken = await generateAccessToken(user);
     return accessToken;
   } finally {
     release(connection);
+    logger.info('Ending refreshUserToken');
   }
 };
 
 export const logoutUser = async (userId: number) => {
   let connection: PoolClient = undefined as unknown as PoolClient;
+
+  logger.info('Starting logoutUser');
   try {
     connection = await getConnection();
     await revokeRefreshToken(userId, connection);
   } finally {
     release(connection);
+    logger.info('Ending logoutUser');
   }
 };
