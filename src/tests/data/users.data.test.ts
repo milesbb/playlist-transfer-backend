@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { PoolClient } from 'pg';
 import { createUser, areUsernameAndEmailUnique, getUser } from '@data/users';
-import { query, queryOne } from '@utils/connections';
+import { query } from '@utils/connections';
 
 vi.mock('@utils/connections', () => ({
   query: vi.fn(),
