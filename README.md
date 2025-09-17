@@ -1,8 +1,10 @@
 # Playlist Transfer Backend
 
-This repository contains the **backend** for the Playlist Transfer app, built using **Node.js** and **Express**, deployed as an **AWS Lambda** function with **API Gateway**. The infrastructure is fully automated using **Infrastructure as Code (IaC)**, including **CodePipeline**, **CodeBuild**, **IAM**, **S3**, and **Lambda**. Packaging done with **webpack** and DB uses **PostgreSQL** and migrations done with **Flyway** that auto update in pipeline. Tests run with **Vitest**. Auth done with **JWT**.
+This repository contains the **backend** for the Playlist Transfer website, built using **Node.js** and **Express**, deployed as an **AWS Lambda** function with **API Gateway**. The infrastructure is fully automated using **Infrastructure as Code (IaC)**, including **CodePipeline**, **CodeBuild**, **IAM**, **S3**, and **Lambda**. Packaging done with **webpack** and DB uses **PostgreSQL** and migrations done with **Flyway** that auto update in pipeline. Tests run with **Vitest**. Auth done with **JWT**.
 
-The project's main goal is to make it easy for people to archive and transfer their music playlists between apps. Down with the walls between music providers!
+The project's main goal is to make it easy for people to archive and transfer their music playlists between apps/providers. Down with the walls between music providers!
+
+This is part of a wider full-stack project, [check out the frontend here](https://github.com/milesbb/playlist-transfer-frontend)!
 
 ---
 
