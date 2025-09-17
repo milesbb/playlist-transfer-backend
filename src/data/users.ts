@@ -96,5 +96,5 @@ export const getUser = async (
 };
 
 export const deleteUser = async (userId: number, connection: PoolClient) => {
-  await queryOne(`DELETE FROM users WHERE id = $1`, [userId], connection);
+  await queryOne(`DELETE FROM users WHERE id = $1;`, [userId], connection);
 };

@@ -83,7 +83,7 @@ export const queryOne = async <T = any>(
   connection: PoolClient,
 ): Promise<T> => {
   const results = await query<T[]>(queryText, queryParams, connection);
-  if (results.length !== 1) {
+  if (results.length > 1) {
     throw Error('More than 1 results returned during query 1.');
   }
   return results[0] as unknown as T;
