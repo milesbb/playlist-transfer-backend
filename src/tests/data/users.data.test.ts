@@ -29,7 +29,7 @@ describe('User Data Layer', () => {
       };
       await createUser(userData, mockConnection);
 
-      expect(queryOne).toHaveBeenCalledWith(
+      expect(query).toHaveBeenCalledWith(
         expect.stringContaining('INSERT INTO users'),
         [userData.email, userData.username, userData.passwordHash],
         mockConnection,
@@ -63,7 +63,7 @@ describe('User Data Layer', () => {
   describe('getUser', () => {
     it('should return a user by email', async () => {
       const userData = { email: 'alice@example.com', username: undefined };
-      (queryOne as any).mockResolvedValueOnce({
+      (query as any).mockResolvedValueOnce({
         id: 1,
         username: 'alice',
         email: 'alice@example.com',
@@ -72,7 +72,7 @@ describe('User Data Layer', () => {
 
       const result = await getUser(userData, mockConnection);
 
-      expect(queryOne).toHaveBeenCalledWith(
+      expect(query).toHaveBeenCalledWith(
         expect.stringContaining('SELECT'),
         [userData.email],
         mockConnection,
@@ -87,7 +87,7 @@ describe('User Data Layer', () => {
 
     it('should return a user by username', async () => {
       const userData = { username: 'bob', email: undefined };
-      (queryOne as any).mockResolvedValueOnce({
+      (query as any).mockResolvedValueOnce({
         id: 2,
         username: 'bob',
         email: 'bob@example.com',
@@ -96,7 +96,7 @@ describe('User Data Layer', () => {
 
       const result = await getUser(userData, mockConnection);
 
-      expect(queryOne).toHaveBeenCalledWith(
+      expect(query).toHaveBeenCalledWith(
         expect.stringContaining('SELECT'),
         [userData.username],
         mockConnection,

@@ -1,5 +1,5 @@
 import { PoolClient } from 'pg';
-import { queryOne, query } from '@utils/connections';
+import { query } from '@utils/connections';
 import {
   CreateUserData,
   UniquenessResults,
@@ -13,7 +13,7 @@ export const createUser = async (
   userData: CreateUserData,
   connection: PoolClient,
 ) => {
-  await queryOne(
+  await query(
     `INSERT INTO users
         (
             email,
@@ -76,7 +76,7 @@ export const getUser = async (
     );
   }
 
-  const result = await queryOne(
+  const result = await query(
     `SELECT
           id,
           username,

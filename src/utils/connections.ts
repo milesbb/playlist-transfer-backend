@@ -65,23 +65,12 @@ export const query = async <T = any>(
       queryText,
       queryParams,
     )) as any;
+    logger.info('Query Results', results);
     return results[0];
   } catch (error) {
     logger.error(`Query errored: `, error);
     throw error;
   }
-};
-
-export const queryOne = async <T = any>(
-  queryText: string,
-  queryParams: any,
-  connection: PoolClient,
-): Promise<T> => {
-  const results = await query<T[]>(queryText, queryParams, connection);
-  if (results.length !== 1) {
-    throw Error('More than 1 results returned during query 1.');
-  }
-  return results[0] as unknown as T;
 };
 
 export const release = (connection: PoolClient) => {
