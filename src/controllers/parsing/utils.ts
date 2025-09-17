@@ -26,3 +26,24 @@ export const parseString = <T extends boolean = false>(
 
   return trimmed as any;
 };
+
+export const parseNumber = <T extends boolean = false>(
+  value: unknown,
+  name: string,
+  optional: T,
+): T extends true ? number | undefined : number => {
+  if (value === undefined) {
+    if (optional) {
+      return undefined as any;
+    }
+    throw ErrorVariants.ParsingError(`Number field '${name}' is undefined.`);
+  }
+
+  if (typeof value !== 'number') {
+    throw ErrorVariants.ParsingError(
+      `Expected number for field '${name}' and got ${typeof value}`,
+    );
+  }
+
+  return value as any;
+};

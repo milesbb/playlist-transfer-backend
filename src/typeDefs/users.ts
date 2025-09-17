@@ -1,9 +1,17 @@
 export type User = CreateUserData & {
-  userId: string;
+  userId: number;
 };
 
 export type CreateUserData = UserIdentificationData & {
   passwordHash: string;
+};
+
+export type UserIdentificationDataWithOptionalId = UserIdentificationData & {
+  userId?: number;
+};
+
+export type LoginData = UserIdentificationData & {
+  password: string;
 };
 
 export interface UserIdentificationData {
@@ -13,7 +21,7 @@ export interface UserIdentificationData {
 
 export interface RefreshTokenData {
   token: string;
-  userId: string;
+  userId: number;
 }
 
 export interface UniquenessResults {

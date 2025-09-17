@@ -19,7 +19,7 @@ export default defineConfig([
   {
     ignores: ['dist/**', 'node_modules/**'],
 
-    files: ['**/*.{ts,tsx,js,mjs}'],
+    files: ['**/*.{ts,tsx,js,mjs}', '**/*.test.{ts,tsx,js,mjs}'],
 
     extends: compat.extends(
       'eslint:recommended',

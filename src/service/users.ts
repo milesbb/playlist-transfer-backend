@@ -52,3 +52,17 @@ export const getUser = async (
     logger.info('Ending getUser');
   }
 };
+
+export const deleteUser = async (userId: number) => {
+  let connection: PoolClient = undefined as unknown as PoolClient;
+
+  logger.info('Starting deleteUser');
+  try {
+    connection = await getConnection();
+
+    await usersDataLayer.deleteUser(userId, connection);
+  } finally {
+    release(connection);
+    logger.info('Ending deleteUser');
+  }
+};

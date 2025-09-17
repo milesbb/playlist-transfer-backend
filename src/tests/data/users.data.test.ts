@@ -1,7 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { PoolClient } from 'pg';
-import { createUser, areUsernameAndEmailUnique, getUser } from '@data/users';
-import { query } from '@utils/connections';
+import {
+  createUser,
+  areUsernameAndEmailUnique,
+  getUser,
+  deleteUser,
+} from '@data/users';
+import { query, queryOne } from '@utils/connections';
 
 vi.mock('@utils/connections', () => ({
   query: vi.fn(),
@@ -21,7 +26,7 @@ describe('User Data Layer', () => {
   });
 
   describe('createUser', () => {
-    it('should call queryOne with correct SQL and parameters', async () => {
+    it('should call query with correct SQL and parameters', async () => {
       const userData = {
         email: 'alice@example.com',
         username: 'alice',
@@ -64,7 +69,7 @@ describe('User Data Layer', () => {
   describe('getUser', () => {
     it('should return a user by email', async () => {
       const userData = { email: 'alice@example.com', username: undefined };
-      (query as any).mockResolvedValueOnce({
+      (queryOne as any).mockResolvedValueOnce({
         id: 1,
         username: 'alice',
         email: 'alice@example.com',
@@ -73,7 +78,7 @@ describe('User Data Layer', () => {
 
       const result = await getUser(userData, mockConnection);
 
-      expect(query).toHaveBeenCalledWith(
+      expect(queryOne).toHaveBeenCalledWith(
         expect.stringContaining('SELECT'),
         [userData.email],
         mockConnection,
@@ -88,7 +93,7 @@ describe('User Data Layer', () => {
 
     it('should return a user by username', async () => {
       const userData = { username: 'bob', email: undefined };
-      (query as any).mockResolvedValueOnce({
+      (queryOne as any).mockResolvedValueOnce({
         id: 2,
         username: 'bob',
         email: 'bob@example.com',
@@ -97,7 +102,7 @@ describe('User Data Layer', () => {
 
       const result = await getUser(userData, mockConnection);
 
-      expect(query).toHaveBeenCalledWith(
+      expect(queryOne).toHaveBeenCalledWith(
         expect.stringContaining('SELECT'),
         [userData.username],
         mockConnection,
@@ -110,13 +115,54 @@ describe('User Data Layer', () => {
       });
     });
 
+    it('should return a user by userId', async () => {
+      const userData = {
+        username: undefined,
+        email: undefined,
+        userId: 2,
+      };
+      (queryOne as any).mockResolvedValueOnce({
+        id: 2,
+        username: 'bob',
+        email: 'bob@example.com',
+        password_hash: 'pw123',
+      });
+
+      const result = await getUser(userData, mockConnection);
+
+      expect(queryOne).toHaveBeenCalledWith(
+        expect.stringContaining('SELECT'),
+        [userData.userId],
+        mockConnection,
+      );
+      expect(result).toEqual({
+        userId: 2,
+        username: 'bob',
+        email: 'bob@example.com',
+        passwordHash: 'pw123',
+      });
+    });
+
     it('should throw an error if no email or username provided', async () => {
       await expect(
-        getUser(
-          { email: undefined, username: undefined },
-          mockConnection as any,
-        ),
+        getUser({ email: undefined, username: undefined }, mockConnection),
       ).rejects.toThrow();
+    });
+  });
+
+  describe('deleteUser', () => {
+    it('Should call queryOne with userId', async () => {
+      const testUserId = 2;
+
+      (queryOne as any).mockResolvedValueOnce(null);
+
+      await deleteUser(testUserId, mockConnection);
+
+      expect(queryOne).toHaveBeenCalledWith(
+        expect.stringContaining('DELETE'),
+        [testUserId],
+        mockConnection,
+      );
     });
   });
 });

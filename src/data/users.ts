@@ -1,10 +1,10 @@
 import { PoolClient } from 'pg';
-import { query } from '@utils/connections';
+import { query, queryOne } from '@utils/connections';
 import {
   CreateUserData,
   UniquenessResults,
   User,
-  UserIdentificationData,
+  UserIdentificationDataWithOptionalId,
 } from '@typeDefs/users';
 import { parseColumnValue } from './utils';
 import { ErrorVariants } from '@utils/errorTypes';
@@ -59,24 +59,27 @@ const parseRowToUser = (row: any): User => {
 };
 
 export const getUser = async (
-  userData: UserIdentificationData,
+  userData: UserIdentificationDataWithOptionalId,
   connection: PoolClient,
 ): Promise<User> => {
   let searchString = '';
-  let queryParams: string[] = [];
+  let queryParams: string[] | number[] = [];
   if (userData.email) {
     searchString = `WHERE email = $1`;
     queryParams = [userData.email];
   } else if (userData.username) {
     searchString = `WHERE username = $1`;
     queryParams = [userData.username];
+  } else if (userData.userId) {
+    searchString = `WHERE id = $1`;
+    queryParams = [userData.userId];
   } else {
     throw ErrorVariants.UsersError(
       'No valid email or username to search for user by during getUser!',
     );
   }
 
-  const result = await query(
+  const result = await queryOne(
     `SELECT
           id,
           username,
@@ -90,4 +93,8 @@ export const getUser = async (
   );
 
   return parseRowToUser(result);
+};
+
+export const deleteUser = async (userId: number, connection: PoolClient) => {
+  await queryOne(`DELETE FROM users WHERE id = $1`, [userId], connection);
 };

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import * as parseModule from '@controllers/parsing/users';
+import { ErrorVariants } from '@utils/errorTypes';
 
 describe('parseUserCreateRequest', () => {
   it('should parse and hash the password correctly', async () => {
@@ -43,30 +44,89 @@ describe('parseUserCreateRequest', () => {
   });
 });
 
-describe('parseGetUserRequest', () => {
-  it('should parse optional username and email correctly', () => {
-    const body = { username: 'bob', email: 'bob@example.com' };
+describe('parseLoginRequest (integration)', () => {
+  it('parses a valid login request body', () => {
+    const body = {
+      username: 'john',
+      email: 'john@example.com',
+      password: 'secret',
+    };
 
-    const result = parseModule.parseGetUserRequest(body);
+    const result = parseModule.parseLoginRequest(body);
 
-    expect(result.username).toBe('bob');
-    expect(result.email).toBe('bob@example.com');
+    expect(result).toEqual({
+      username: 'john',
+      email: 'john@example.com',
+      password: 'secret',
+    });
   });
 
-  it('should handle missing optional fields', () => {
-    const body = {};
+  it('returns undefined for optional fields if missing', () => {
+    const body = { password: 'secret' };
 
-    const result = parseModule.parseGetUserRequest(body);
+    const result = parseModule.parseLoginRequest(body);
 
-    expect(result.username).toBeUndefined();
-    expect(result.email).toBeUndefined();
+    expect(result).toEqual({
+      username: undefined,
+      email: undefined,
+      password: 'secret',
+    });
   });
 
-  it('should throw if a non-string value is provided', () => {
-    const body = { username: 123, email: {} };
+  it('throws if password is missing', () => {
+    const body = { username: 'john', email: 'john@example.com' };
 
-    expect(() => parseModule.parseGetUserRequest(body)).toThrow(
+    expect(() => parseModule.parseLoginRequest(body)).toThrowError(
+      ErrorVariants.ParsingError("String field 'password' is undefined.")
+        .message,
+    );
+  });
+
+  it('throws if username is wrong type', () => {
+    const body = { username: 123, email: 'a@b.com', password: 'pw' };
+
+    expect(() => parseModule.parseLoginRequest(body)).toThrowError(
       "Expected string for field 'username' and got number",
+    );
+  });
+});
+
+describe('parseRefreshTokenRequest (integration)', () => {
+  it('parses a valid refresh token request body', () => {
+    const body = {
+      userId: 123,
+      refreshToken: 'abc123',
+    };
+
+    const result = parseModule.parseRefreshTokenRequest(body);
+
+    expect(result).toEqual({
+      userId: 123,
+      refreshToken: 'abc123',
+    });
+  });
+
+  it('throws if userId is not a number', () => {
+    const body = { userId: 'oops', refreshToken: 'token' };
+
+    expect(() => parseModule.parseRefreshTokenRequest(body)).toThrowError(
+      "Expected number for field 'userId' and got string",
+    );
+  });
+
+  it('throws if refreshToken is missing', () => {
+    const body = { userId: 123 };
+
+    expect(() => parseModule.parseRefreshTokenRequest(body)).toThrowError(
+      "String field 'refreshToken' is undefined.",
+    );
+  });
+
+  it('throws if refreshToken is wrong type', () => {
+    const body = { userId: 123, refreshToken: 999 };
+
+    expect(() => parseModule.parseRefreshTokenRequest(body)).toThrowError(
+      "Expected string for field 'refreshToken' and got number",
     );
   });
 });

@@ -7,6 +7,7 @@ vi.mock('@data/users', () => ({
   areUsernameAndEmailUnique: vi.fn(),
   createUser: vi.fn(),
   getUser: vi.fn(),
+  deleteUser: vi.fn(),
 }));
 
 vi.mock('@utils/connections', () => ({
@@ -94,6 +95,23 @@ describe('User Service Layer', () => {
         mockConnection,
       );
       expect(result).toEqual(mockUser);
+      expect(connections.release).toHaveBeenCalledWith(mockConnection);
+    });
+  });
+
+  describe('deleteUser', () => {
+    it('should call deleteUser with userId', async () => {
+      const testUserId = 2;
+
+      (usersDataLayer.deleteUser as any).mockResolvedValue();
+
+      await usersService.deleteUser(testUserId);
+
+      expect(connections.getConnection).toHaveBeenCalled();
+      expect(usersDataLayer.deleteUser).toHaveBeenCalledWith(
+        testUserId,
+        mockConnection,
+      );
       expect(connections.release).toHaveBeenCalledWith(mockConnection);
     });
   });

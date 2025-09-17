@@ -18,6 +18,8 @@ export default defineConfig({
       DB_PORT_PARAM: '/test/prefix/param',
       DB_URI_PARAM: '/test/prefix/param',
       DB_USER_PARAM: '/test/prefix/param',
+      JWT_SECRET: 'test-secret',
+      ACCESS_TOKEN_TTL: '15m',
     },
   },
   resolve: {

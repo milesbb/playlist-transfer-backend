@@ -3,12 +3,28 @@ import request from 'supertest';
 import express, { Express } from 'express';
 import usersRouter, { usersRoutePath } from '@controllers/users';
 import * as userService from '@service/users';
-import { ErrorVariants } from '@utils/errorTypes';
+import * as authService from '@service/auth';
 import { errorHandler } from '@middlewares/errorHandler';
+import { LoginTokens } from '@typeDefs/auth';
 
 vi.mock('@service/users', () => ({
   createUser: vi.fn(),
   getUser: vi.fn(),
+  deleteUser: vi.fn(),
+}));
+
+vi.mock('@service/auth', () => ({
+  loginUser: vi.fn(),
+  refreshUserToken: vi.fn(),
+  logoutUser: vi.fn(),
+  hashPassword: vi.fn(),
+}));
+
+vi.mock('@middlewares/auth', () => ({
+  requireAuth: vi.fn().mockImplementation((req, res, next) => {
+    req.user = { sub: 'fake', username: 'mocked-user' };
+    next();
+  }),
 }));
 
 describe('Users Controller (supertest)', () => {
@@ -23,7 +39,7 @@ describe('Users Controller (supertest)', () => {
     vi.clearAllMocks();
   });
 
-  describe('POST /v1/users/register', () => {
+  describe('POST /v1/users/signup', () => {
     it('should create a user successfully', async () => {
       const mockRequestData = {
         username: 'alice',
@@ -34,23 +50,100 @@ describe('Users Controller (supertest)', () => {
       const mockCreateUserData = {
         username: 'alice',
         email: 'alice@example.com',
-        passwordHash: expect.anything(),
+        passwordHash: 'hashed',
       };
 
-      (userService.createUser as any).mockResolvedValue(undefined);
+      (authService.hashPassword as any).mockResolvedValue(
+        mockCreateUserData.passwordHash,
+      );
+      (userService.createUser as any).mockResolvedValue();
 
       const response = await request(app)
-        .post(`${usersRoutePath}/register`)
+        .post(`${usersRoutePath}/signup`)
         .send(mockRequestData);
 
       expect(response.status).toBe(200);
-      expect(response.body).toEqual({ userCreated: true });
+      expect(response.body).toEqual({ message: 'User created successfully' });
       expect(userService.createUser).toHaveBeenCalledWith(mockCreateUserData);
     });
 
     it('should call next with error if parsing fails', async () => {
+      (authService.hashPassword as any).mockResolvedValue('hashed');
       const response = await request(app)
-        .post(`${usersRoutePath}/register`)
+        .post(`${usersRoutePath}/signup`)
+        .send({ username: 3 });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('errorKey');
+    });
+  });
+
+  describe('POST /v1/users/login', () => {
+    it('should login a user successfully', async () => {
+      const mockRequestData = {
+        username: 'alice',
+        email: 'alice@example.com',
+        password: 'testpass',
+      };
+
+      const testTokens: LoginTokens = {
+        accessToken: 'test',
+        refreshToken: 'test2',
+      };
+
+      (authService.loginUser as any).mockResolvedValue(testTokens);
+
+      const response = await request(app)
+        .post(`${usersRoutePath}/login`)
+        .send(mockRequestData);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual(testTokens);
+      expect(authService.loginUser).toHaveBeenCalledWith(
+        mockRequestData.password,
+        {
+          username: mockRequestData.username,
+          email: mockRequestData.email,
+        },
+      );
+    });
+
+    it('should call next with error if parsing fails', async () => {
+      const response = await request(app)
+        .post(`${usersRoutePath}/login`)
+        .send({ username: 'test', email: 'test' });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('errorKey');
+    });
+  });
+
+  describe('POST /v1/users/refresh', () => {
+    it('should refresh token successfully', async () => {
+      const mockRequestData = {
+        userId: 1,
+        refreshToken: 'test',
+      };
+
+      const testAccessToken = 'test2';
+
+      (authService.refreshUserToken as any).mockResolvedValue(testAccessToken);
+
+      const response = await request(app)
+        .post(`${usersRoutePath}/refresh`)
+        .send(mockRequestData);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ accessToken: testAccessToken });
+      expect(authService.refreshUserToken).toHaveBeenCalledWith(
+        mockRequestData.userId,
+        mockRequestData.refreshToken,
+      );
+    });
+
+    it('should call next with error if parsing fails', async () => {
+      const response = await request(app)
+        .post(`${usersRoutePath}/refresh`)
         .send({ username: 0 });
 
       expect(response.status).toBe(400);
@@ -58,38 +151,50 @@ describe('Users Controller (supertest)', () => {
     });
   });
 
-  describe('POST /v1/users/user', () => {
-    it('should get a user successfully', async () => {
-      const mockUserData = { username: 'bob' };
-      const mockUser = {
-        userId: 1,
-        username: 'bob',
-        email: 'bob@example.com',
-        passwordHash: expect.anything(),
-      };
+  describe('POST /v1/users/logout', () => {
+    it('should logout a user successfully', async () => {
+      const testUserId = 1;
 
-      (userService.getUser as any).mockResolvedValue(mockUser);
+      (authService.logoutUser as any).mockResolvedValue();
 
       const response = await request(app)
-        .post(`${usersRoutePath}/user`)
-        .send(mockUserData);
+        .post(`${usersRoutePath}/logout`)
+        .send({ userId: testUserId });
 
       expect(response.status).toBe(200);
-      expect(response.body).toEqual(mockUser);
-      expect(userService.getUser).toHaveBeenCalledWith({
-        email: undefined,
-        username: mockUserData.username,
-      });
+      expect(response.body).toEqual({ message: 'User logged out' });
+      expect(authService.logoutUser).toHaveBeenCalledWith(testUserId);
     });
 
-    it('should call next with 500 error if service fails', async () => {
-      (userService.getUser as any).mockRejectedValue(
-        ErrorVariants.ParsingError('test'),
-      );
+    it('should call next with error if parsing fails', async () => {
+      const response = await request(app)
+        .post(`${usersRoutePath}/logout`)
+        .send({ username: 0 });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('errorKey');
+    });
+  });
+
+  describe('DELETE /v1/users/account', () => {
+    it('should create a user successfully', async () => {
+      const testUserId = 1;
+
+      (userService.deleteUser as any).mockResolvedValue();
 
       const response = await request(app)
-        .post(`${usersRoutePath}/user`)
-        .send({});
+        .delete(`${usersRoutePath}/account`)
+        .send({ userId: testUserId });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({ message: 'User account deleted' });
+      expect(userService.deleteUser).toHaveBeenCalledWith(testUserId);
+    });
+
+    it('should call next with error if parsing fails', async () => {
+      const response = await request(app)
+        .delete(`${usersRoutePath}/account`)
+        .send({ username: 0 });
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('errorKey');

@@ -1,4 +1,22 @@
 export const ErrorVariants = {
+  Unauthorized: {
+    errorCode: 1000,
+    errorKey: 'Unauthorized',
+    message: 'User unauthorized for action.',
+    httpStatus: 401,
+  },
+  MissingAuthHeader: {
+    errorCode: 1001,
+    errorKey: 'MissingAuthHeader',
+    message: 'Authorization header is missing.',
+    httpStatus: 401,
+  },
+  InvalidAuthHeader: {
+    errorCode: 1002,
+    errorKey: 'InvalidAuthHeader',
+    message: 'Authorization header is missing. (Should be "Bearer <token>")',
+    httpStatus: 401,
+  },
   UsersError: (error: string) => ({
     errorCode: 2000,
     errorKey: 'UsersError',
@@ -16,5 +34,17 @@ export const ErrorVariants = {
     errorKey: 'NoRowsFoundError',
     message: 'No rows returned by db from preceeding query.',
     httpStatus: 500,
+  },
+  IncorrectPassword: {
+    errorCode: 2003,
+    errorKey: 'IncorrectPassword',
+    message: 'Incorrect password for account.',
+    httpStatus: 401,
+  },
+  InvalidRefreshToken: {
+    errorCode: 2004,
+    errorKey: 'InvalidRefreshToken',
+    message: 'Invalid refresh token.',
+    httpStatus: 401,
   },
 };
