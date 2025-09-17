@@ -1,6 +1,6 @@
 # Playlist Transfer Backend
 
-This repository contains the **backend** for the Playlist Transfer app, built using **Node.js** and **Express**, deployed as an **AWS Lambda** function with **API Gateway**. The infrastructure is fully automated using **Infrastructure as Code (IaC)**, including **CodePipeline**, **CodeBuild**, **IAM**, **S3**, and **Lambda**. Packaging done with **webpack** and DB uses **PostgreSQL** and migrations done with **Flyway** that auto update in pipeline. Tests run with **Vitest**.
+This repository contains the **backend** for the Playlist Transfer app, built using **Node.js** and **Express**, deployed as an **AWS Lambda** function with **API Gateway**. The infrastructure is fully automated using **Infrastructure as Code (IaC)**, including **CodePipeline**, **CodeBuild**, **IAM**, **S3**, and **Lambda**. Packaging done with **webpack** and DB uses **PostgreSQL** and migrations done with **Flyway** that auto update in pipeline. Tests run with **Vitest**. Auth done with **JWT**.
 
 The project's main goal is to make it easy for people to archive and transfer their music playlists between apps. Down with the walls between music providers!
 
@@ -19,11 +19,12 @@ The project's main goal is to make it easy for people to archive and transfer th
 ## Features
 
 - Infrastructure-as-Code - No need to manually changeset/deploy `.yml` changes, they're picked up and automatically applied via pipeline on push
-- All database migrations automatically update in pipeline
+- All database migrations automatically update in pipeline (also plug-and-play database support via SSM)
 - Node.js + Express API hosted on AWS Lambda
 - Serverless API via API Gateway
 - Automatic CI/CD with CodePipeline and CodeBuild
 - Packaging with webpack both locally and in the cloud
+- Full auth flow with JWT
 
 **CI/CD Flow:**
 
@@ -64,7 +65,7 @@ git commit -m "Useful message" # avoid 'fixed x' or 'changed x'
 git push origin main
 ```
 
-All changes (including changes to `infrastructure.yml` or `buildspec.yml`) will automatically update all relevant existing cloud resources.
+All changes (including changes to `infrastructure.yml`, `buildspec.yml`, and `buildspec-migrate.yml`) will automatically update all relevant existing cloud resources.
 
 You can check build logs in AWS codebuild.
 
@@ -94,21 +95,25 @@ Overall, try and follow this structure.
 playlist-transfer-backend/
 │
 ├─ src/
-│   ├─ routes/        # Express route handlers
-│   ├─ controllers/   # API entry/exit points
-│   ├─ service/       # Business logic i.e. nothing data fetch-y or api-touchy
-│   ├─ data/          # Database interactions
-│   └─ serverless.ts  # Lambda entry point
+│   ├─ routes/         # Express route handlers
+│   ├─ controllers/    # API entry/exit points
+│   ├─ service/        # Business logic i.e. nothing data fetch-y or api-touchy
+│   ├─ data/           # Database interactions
+│   ├─ middlewares/    # Middleware functions
+│   ├─ tests/          # Tests (mimics surrounding folder structure)
+│   └─ lambda.ts       # Lambda entry point
 │
-├─ infrastructure.yml    # IaC template with pipeline, lambda, and other resources
-├─ buildspec.yml      # CodeBuild build spec
+├─ infrastructure.yml  # IaC template with pipeline, lambda, and other resources
+├─ buildspec.yml       # CodeBuild build spec
 ├─ package.json
 └─ README.md
 ```
 
 # Wanting to Contribute?
 
-This is not a super serious project and still in it's early infancy. Branch protections and sufficient tests are not set up yet. When they are, I will begin to create small 'easy first issue' issues that people can pick up. In general though feel free to comment on anything, always down to discuss and learn!
+This is not a super serious project and still in it's early infancy. In the future, I may begin to create small 'easy first issue' issues that people can pick up to get some experience working on a project. In general though feel free to comment on anything, always down to discuss and learn!
+
+Feel free to also hit me up/learn more at [my website 'milesbb.tech'](https://milesbb.tech) or on [LinkedIn](https://www.linkedin.com/in/milesbaileybraendgaard/)!
 
 # License
 
