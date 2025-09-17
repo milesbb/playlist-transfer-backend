@@ -4,6 +4,7 @@ import { Pool, PoolClient } from 'pg';
 import { v4 as uuid4 } from 'uuid';
 import logger from './logging';
 import { getDatabaseParameters } from './aws/parameters';
+import { ErrorVariants } from './errorTypes';
 
 let pool: Pool = undefined as unknown as Pool;
 
@@ -65,8 +66,11 @@ export const query = async <T = any>(
       queryText,
       queryParams,
     )) as any;
-    logger.info('Query Results', results);
-    return results[0];
+    if (results['rows']) {
+      return results['rows'][0];
+    } else {
+      throw ErrorVariants.NoRowsFoundError;
+    }
   } catch (error) {
     logger.error(`Query errored: `, error);
     throw error;

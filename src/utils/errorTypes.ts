@@ -11,4 +11,10 @@ export const ErrorVariants = {
     message: `Something went wrong when parsing: ${error}`,
     httpStatus: 400,
   }),
+  NoRowsFoundError: {
+    errorCode: 2002,
+    errorKey: 'NoRowsFoundError',
+    message: 'No rows returned by db from preceeding query.',
+    httpStatus: 500,
+  },
 };
