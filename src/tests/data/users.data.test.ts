@@ -50,14 +50,14 @@ describe('User Data Layer', () => {
         passwordHash: 'pw',
       };
 
-      (query as any).mockResolvedValueOnce({
+      (queryOne as any).mockResolvedValueOnce({
         usernameTaken: true,
         emailTaken: false,
       });
 
       const result = await areUsernameAndEmailUnique(userData, mockConnection);
 
-      expect(query).toHaveBeenCalledWith(
+      expect(queryOne).toHaveBeenCalledWith(
         expect.stringContaining('EXISTS'),
         [userData.username, userData.email],
         mockConnection,

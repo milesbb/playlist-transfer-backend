@@ -34,7 +34,7 @@ export const areUsernameAndEmailUnique = async (
   userData: CreateUserData,
   connection: PoolClient,
 ): Promise<UniquenessResults> => {
-  const result = await query(
+  const result = await queryOne(
     `SELECT
             (EXISTS (SELECT 1 FROM users WHERE username = $1)) AS "usernameTaken",
             (EXISTS (SELECT 1 FROM users WHERE email = $2)) AS "emailTaken";
