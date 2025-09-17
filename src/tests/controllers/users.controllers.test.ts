@@ -58,7 +58,7 @@ describe('Users Controller (supertest)', () => {
     });
   });
 
-  describe('GET /v1/users/user', () => {
+  describe('POST /v1/users/user', () => {
     it('should get a user successfully', async () => {
       const mockUserData = { username: 'bob' };
       const mockUser = {
@@ -71,7 +71,7 @@ describe('Users Controller (supertest)', () => {
       (userService.getUser as any).mockResolvedValue(mockUser);
 
       const response = await request(app)
-        .get(`${usersRoutePath}/user`)
+        .post(`${usersRoutePath}/user`)
         .send(mockUserData);
 
       expect(response.status).toBe(200);
@@ -88,7 +88,7 @@ describe('Users Controller (supertest)', () => {
       );
 
       const response = await request(app)
-        .get(`${usersRoutePath}/user`)
+        .post(`${usersRoutePath}/user`)
         .send({});
 
       expect(response.status).toBe(400);

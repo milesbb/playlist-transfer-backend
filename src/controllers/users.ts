@@ -23,17 +23,20 @@ router.post(
   },
 );
 
-router.get('/user', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const getUserData = parseGetUserRequest(req.body);
+router.post(
+  '/user',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const getUserData = parseGetUserRequest(req.body);
 
-    const user = await getUser(getUserData);
+      const user = await getUser(getUserData);
 
-    res.status(200);
-    res.json(user);
-  } catch (error) {
-    next(error);
-  }
-});
+      res.status(200);
+      res.json(user);
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 export default router;
