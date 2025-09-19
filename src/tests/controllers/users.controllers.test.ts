@@ -97,8 +97,14 @@ describe('Users Controller (supertest)', () => {
         .post(`${usersRoutePath}/login`)
         .send(mockRequestData);
 
+      const cookies = response.headers['set-cookie'];
       expect(response.status).toBe(200);
-      expect(response.body).toEqual(testTokens);
+      expect(cookies).toBeDefined();
+      const hasRefreshToken = cookies?.some((cookie: string) =>
+        cookie.startsWith('refreshToken='),
+      );
+      expect(hasRefreshToken).toBe(true);
+      expect(response.body).toEqual({ accessToken: testTokens.accessToken });
       expect(authService.loginUser).toHaveBeenCalledWith(
         mockRequestData.password,
         {

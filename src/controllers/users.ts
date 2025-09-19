@@ -46,7 +46,12 @@ router.post(
       });
 
       res.status(200);
-      res.json(tokens);
+      res.cookie('refreshToken', tokens.refreshToken, {
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+      res.json({ accessToken: tokens.accessToken });
     } catch (error) {
       next(error);
     }
