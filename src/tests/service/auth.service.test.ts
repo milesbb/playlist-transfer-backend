@@ -114,6 +114,7 @@ describe('authService', () => {
       expect(result).toEqual({
         accessToken: 'accessToken',
         refreshToken: expect.any(String),
+        userId: 1,
       });
     });
 

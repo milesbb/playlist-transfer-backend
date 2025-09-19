@@ -40,18 +40,18 @@ router.post(
     try {
       const { password, username, email } = parseLoginRequest(req.body);
 
-      const tokens = await loginUser(password, {
+      const { accessToken, refreshToken, userId } = await loginUser(password, {
         username: username,
         email: email,
       });
 
       res.status(200);
-      res.cookie('refreshToken', tokens.refreshToken, {
+      res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         sameSite: 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
-      res.json({ accessToken: tokens.accessToken });
+      res.json({ accessToken, userId });
     } catch (error) {
       next(error);
     }

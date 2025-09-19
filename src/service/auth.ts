@@ -80,7 +80,7 @@ export const verifyRefreshToken = async (
 export const loginUser = async (
   password: string,
   userIdData: UserIdentificationData,
-): Promise<LoginTokens> => {
+): Promise<{ userId: number } & LoginTokens> => {
   let connection: PoolClient = undefined as unknown as PoolClient;
 
   logger.info('Starting loginUser');
@@ -98,6 +98,7 @@ export const loginUser = async (
     return {
       accessToken,
       refreshToken,
+      userId: user.userId,
     };
   } finally {
     release(connection);

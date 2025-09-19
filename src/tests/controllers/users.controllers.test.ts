@@ -86,9 +86,10 @@ describe('Users Controller (supertest)', () => {
         password: 'testpass',
       };
 
-      const testTokens: LoginTokens = {
+      const testTokens: LoginTokens & { userId: number } = {
         accessToken: 'test',
         refreshToken: 'test2',
+        userId: 1,
       };
 
       (authService.loginUser as any).mockResolvedValue(testTokens);
@@ -106,7 +107,10 @@ describe('Users Controller (supertest)', () => {
       expect(hasRefreshToken).toBe(true);
       expect(cookies![0]).toContain('HttpOnly');
       expect(cookies![0]).toContain('Max-Age=604800');
-      expect(response.body).toEqual({ accessToken: testTokens.accessToken });
+      expect(response.body).toEqual({
+        accessToken: testTokens.accessToken,
+        userId: testTokens.userId,
+      });
       expect(authService.loginUser).toHaveBeenCalledWith(
         mockRequestData.password,
         {
