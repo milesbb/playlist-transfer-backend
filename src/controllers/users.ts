@@ -45,13 +45,13 @@ router.post(
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: false, // TODO: turn on when in prod
-        sameSite: 'none',
+        sameSite: 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
       res.cookie('userId', userId, {
         httpOnly: true,
         secure: false, // TODO: turn on when in prod
-        sameSite: 'none',
+        sameSite: 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
       res.json({ accessToken, userId });
