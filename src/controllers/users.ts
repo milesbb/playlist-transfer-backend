@@ -44,12 +44,12 @@ router.post(
       res.status(200);
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
-        sameSite: 'strict',
+        sameSite: 'none',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
       res.cookie('userId', userId, {
         httpOnly: true,
-        sameSite: 'strict',
+        sameSite: 'none',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
       res.json({ accessToken, userId });
