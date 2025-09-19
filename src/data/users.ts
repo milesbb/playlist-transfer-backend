@@ -92,6 +92,10 @@ export const getUser = async (
     connection,
   );
 
+  if (!result) {
+    throw ErrorVariants.NoUserFound;
+  }
+
   return parseRowToUser(result);
 };
 

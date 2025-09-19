@@ -47,4 +47,10 @@ export const ErrorVariants = {
     message: 'Invalid refresh token.',
     httpStatus: 401,
   },
+  NoUserFound: {
+    errorCode: 2005,
+    errorKey: 'NoUserFound',
+    message: 'No user found with specified details',
+    httpStatus: 400,
+  },
 };

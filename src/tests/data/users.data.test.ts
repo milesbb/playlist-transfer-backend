@@ -148,6 +148,13 @@ describe('User Data Layer', () => {
         getUser({ email: undefined, username: undefined }, mockConnection),
       ).rejects.toThrow();
     });
+
+    it('should throw an error if no user found', async () => {
+      (queryOne as any).mockResolvedValueOnce(undefined);
+      await expect(
+        getUser({ email: undefined, username: undefined }, mockConnection),
+      ).rejects.toThrow();
+    });
   });
 
   describe('deleteUser', () => {
