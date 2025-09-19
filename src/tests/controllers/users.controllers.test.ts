@@ -97,13 +97,15 @@ describe('Users Controller (supertest)', () => {
         .post(`${usersRoutePath}/login`)
         .send(mockRequestData);
 
-      const cookies = response.headers['set-cookie'];
+      const cookies = response.headers['set-cookie'] as unknown as string[];
       expect(response.status).toBe(200);
       expect(cookies).toBeDefined();
       const hasRefreshToken = cookies?.some((cookie: string) =>
         cookie.startsWith('refreshToken='),
       );
       expect(hasRefreshToken).toBe(true);
+      expect(cookies![0]).toContain('HttpOnly');
+      expect(cookies![0]).toContain('Max-Age=604800');
       expect(response.body).toEqual({ accessToken: testTokens.accessToken });
       expect(authService.loginUser).toHaveBeenCalledWith(
         mockRequestData.password,
