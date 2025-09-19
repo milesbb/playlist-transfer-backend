@@ -1,4 +1,4 @@
-import serverless from 'serverless-http';
+import serverlessExpress from '@vendia/serverless-express';
 import app from './app';
 import config from './config/config';
 
@@ -6,4 +6,4 @@ app.listen(config.port, () => {
   console.log(`Server running on port ${config.port}`);
 });
 
-export const handler = serverless(app);
+export const handler = serverlessExpress({ app });
