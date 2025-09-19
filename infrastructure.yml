@@ -66,6 +66,21 @@ Resources:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
 
+  PlaylistTransferApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: PlaylistTransferApi
+      StageName: prod
+      Cors:
+        AllowOrigin:
+          - 'http://localhost:5173'
+          - 'https://github.com/milesbb/playlist-transfer-frontend'
+        AllowHeaders:
+          - Content-Type
+          - Authorization
+        AllowMethods: "'GET,POST,PUT,DELETE,OPTIONS'"
+        AllowCredentials: true
+
   PlaylistTransferApiFunction:
     Type: AWS::Serverless::Function
     DependsOn: PlaylistTransferLambdaExecutionRole
@@ -88,31 +103,12 @@ Resources:
           JWT_SECRET: /playlistTransfer/jwt-secret
           ACCESS_TOKEN_TTL: '15m'
       Events:
-        Api:
+        ApiEvent:
           Type: Api
           Properties:
+            RestApiId: !Ref PlaylistTransferApi
             Path: /{proxy+}
             Method: ANY
-            Cors:
-              AllowOrigin:
-                - 'http://http://localhost:5173'
-                - 'https://github.com/milesbb/playlist-transfer-frontend'
-              AllowHeaders:
-                - Content-Type
-                - Authorization
-                - X-Amz-Date
-                - X-Api-Key
-                - X-Amz-Security-Token
-                - X-Custom-Header
-              AllowMethods:
-                - GET
-                - POST
-                - PUT
-                - DELETE
-                - OPTIONS
-              AllowCredentials: true
-      # Tags:
-      #   project: playlist-transfer
 
   PlaylistTransferCodeBuildRole:
     Type: AWS::IAM::Role
