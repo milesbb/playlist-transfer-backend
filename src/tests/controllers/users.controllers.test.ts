@@ -6,6 +6,7 @@ import * as userService from '@service/users';
 import * as authService from '@service/auth';
 import { errorHandler } from '@middlewares/errorHandler';
 import { LoginTokens } from '@typeDefs/auth';
+import cookieParser from 'cookie-parser';
 
 vi.mock('@service/users', () => ({
   createUser: vi.fn(),
@@ -32,6 +33,7 @@ describe('Users Controller (supertest)', () => {
 
   beforeEach(() => {
     app = express();
+    app.use(cookieParser());
     app.use(express.json());
     app.use(usersRoutePath, usersRouter);
     app.use(errorHandler);
@@ -132,8 +134,8 @@ describe('Users Controller (supertest)', () => {
 
   describe('POST /v1/users/refresh', () => {
     it('should refresh token successfully', async () => {
-      const mockRequestData = {
-        userId: 1,
+      const mockCookies = {
+        userId: '1',
         refreshToken: 'test',
       };
 
@@ -143,22 +145,26 @@ describe('Users Controller (supertest)', () => {
 
       const response = await request(app)
         .post(`${usersRoutePath}/refresh`)
-        .send(mockRequestData);
+        .set('Cookie', [
+          `userId=${mockCookies.userId}`,
+          `refreshToken=${mockCookies.refreshToken}`,
+        ])
+        .send();
 
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ accessToken: testAccessToken });
       expect(authService.refreshUserToken).toHaveBeenCalledWith(
-        mockRequestData.userId,
-        mockRequestData.refreshToken,
+        1,
+        mockCookies.refreshToken,
       );
     });
 
-    it('should call next with error if parsing fails', async () => {
+    it('should error 401 next with error if missing cookies', async () => {
       const response = await request(app)
         .post(`${usersRoutePath}/refresh`)
         .send({ username: 0 });
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('errorKey');
     });
   });

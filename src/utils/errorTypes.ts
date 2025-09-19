@@ -53,4 +53,10 @@ export const ErrorVariants = {
     message: 'No user found with specified details',
     httpStatus: 400,
   },
+  MissingCookies: (cookies: string[]) => ({
+    errorCode: 2006,
+    errorKey: 'MissingCookies',
+    message: `Missing cookies from refresh request: ${cookies.join(', ')}`,
+    httpStatus: 401,
+  }),
 };

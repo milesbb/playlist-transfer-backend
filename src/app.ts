@@ -1,6 +1,7 @@
 import express from 'express';
 import routers from '@controllers/index';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import { errorHandler } from './middlewares/errorHandler';
 
 const app = express();
@@ -45,6 +46,7 @@ app.use((req, res, next) => {
   }
   next();
 });
+app.use(cookieParser());
 
 app.use(express.json());
 

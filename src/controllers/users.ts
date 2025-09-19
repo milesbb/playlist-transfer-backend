@@ -3,11 +3,7 @@ import { loginUser, logoutUser, refreshUserToken } from '@service/auth';
 import { createUser, deleteUser } from '@service/users';
 import { ErrorVariants } from '@utils/errorTypes';
 import { Router, Response, Request, NextFunction } from 'express';
-import {
-  parseLoginRequest,
-  parseRefreshTokenRequest,
-  parseUserCreateRequest,
-} from './parsing/users';
+import { parseLoginRequest, parseUserCreateRequest } from './parsing/users';
 import { parseNumber } from './parsing/utils';
 
 export const usersRoutePath = '/v1/users';
@@ -51,6 +47,11 @@ router.post(
         sameSite: 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
+      res.cookie('userId', userId, {
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
       res.json({ accessToken, userId });
     } catch (error) {
       next(error);
@@ -62,12 +63,22 @@ router.post(
   '/refresh',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { userId, refreshToken } = parseRefreshTokenRequest(req.body);
+      const refreshToken = req.cookies?.refreshToken;
+      const userId = req.cookies?.userId;
 
-      const accessToken = await refreshUserToken(userId, refreshToken);
+      const missingCookies: string[] = [];
+      if (!refreshToken) missingCookies.push('refreshToken');
+      if (!userId) missingCookies.push('userId');
 
-      res.status(200);
-      res.json({ accessToken });
+      if (missingCookies.length) {
+        return next(ErrorVariants.MissingCookies(missingCookies));
+      }
+
+      const accessToken = await refreshUserToken(
+        parseInt(userId, 10),
+        refreshToken!,
+      );
+      res.status(200).json({ accessToken });
     } catch (error) {
       next(error);
     }
