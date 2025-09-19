@@ -90,10 +90,28 @@ Resources:
 
       Events:
         Api:
-          Type: Api
-          Properties:
-            Path: /{proxy+}
-            Method: ANY
+        Type: Api
+        Properties:
+          Path: /{proxy+}
+          Method: ANY
+          Cors:
+            AllowOrigin:
+              - 'http://http://localhost:5173'
+              - 'https://github.com/milesbb/playlist-transfer-frontend'
+            AllowHeaders:
+              - Content-Type
+              - Authorization
+              - X-Amz-Date
+              - X-Api-Key
+              - X-Amz-Security-Token
+              - X-Custom-Header
+            AllowMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            AllowCredentials: true
       # Tags:
       #   project: playlist-transfer
 
