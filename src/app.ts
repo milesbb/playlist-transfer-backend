@@ -7,7 +7,7 @@ import { errorHandler } from './middlewares/errorHandler';
 const app = express();
 
 const allowedOrigins = [
-  'https://localhost:5173',
+  'https://localhost:5174',
   'http://localhost:5173',
   'https://github.com/milesbb/playlist-transfer-frontend',
 ];
