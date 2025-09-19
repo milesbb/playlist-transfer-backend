@@ -87,31 +87,30 @@ Resources:
           DB_USER_PARAM: /playlistTransfer/db/user
           JWT_SECRET: /playlistTransfer/jwt-secret
           ACCESS_TOKEN_TTL: '15m'
-
       Events:
         Api:
-        Type: Api
-        Properties:
-          Path: /{proxy+}
-          Method: ANY
-          Cors:
-            AllowOrigin:
-              - 'http://http://localhost:5173'
-              - 'https://github.com/milesbb/playlist-transfer-frontend'
-            AllowHeaders:
-              - Content-Type
-              - Authorization
-              - X-Amz-Date
-              - X-Api-Key
-              - X-Amz-Security-Token
-              - X-Custom-Header
-            AllowMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - OPTIONS
-            AllowCredentials: true
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+            Cors:
+              AllowOrigin:
+                - 'http://http://localhost:5173'
+                - 'https://github.com/milesbb/playlist-transfer-frontend'
+              AllowHeaders:
+                - Content-Type
+                - Authorization
+                - X-Amz-Date
+                - X-Api-Key
+                - X-Amz-Security-Token
+                - X-Custom-Header
+              AllowMethods:
+                - GET
+                - POST
+                - PUT
+                - DELETE
+                - OPTIONS
+              AllowCredentials: true
       # Tags:
       #   project: playlist-transfer
 
