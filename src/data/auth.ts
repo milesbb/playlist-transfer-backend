@@ -1,7 +1,7 @@
 import { RefreshToken } from '@typeDefs/auth';
 import { query } from '@utils/connections';
 import { PoolClient } from 'pg';
-import { parseColumnValue } from './utils';
+import { parseColumnValue, parseOptionalColumnValue } from './utils';
 
 export const addRefreshToken = async (
   tokenHash: string,
@@ -22,7 +22,7 @@ const parseRowToRefreshToken = (row: any): RefreshToken => {
     userId: parseColumnValue(row, 'user_id'),
     tokenHash: parseColumnValue(row, 'token_hash'),
     expiresAt: parseColumnValue(row, 'expires_at'),
-    revokedAt: parseColumnValue(row, 'revoked_at'),
+    revokedAt: parseOptionalColumnValue(row, 'revoked_at'),
     createdAt: parseColumnValue(row, 'created_at'),
   };
 };
