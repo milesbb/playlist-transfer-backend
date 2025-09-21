@@ -11,7 +11,7 @@ This is part of a wider full-stack project, [check out the frontend here](https:
 ## Table of Contents
 
 - [Features](#features)
-- [Architecture](#architecture)
+- [Architectural Flow Diagrams](#architectural-flow-diagrams)
 - [Getting Started](#getting-started)
 - [Project Structure](#project-structure)
 - [Wanting to Contribute?](#wanting-to-contribute)
@@ -37,6 +37,146 @@ This is part of a wider full-stack project, [check out the frontend here](https:
 5. Any infrastructure `.yml` code changes are picked up and automatically changesetted and deployed in pipeline. Will fail on changeset if anything is wrong.
 
 Results in quick turnaround for code changes being surfaced in API and infrastructure!
+
+---
+
+## Architectural Flow Diagrams
+
+Below are the main architectural flows that describe how the system interacts across services.
+
+If you're trying to view these locally on VSCode and it's not rendering, use [Markdown Preview Mermaid Support](https://marketplace.visualstudio.com/items?itemName=bierner.markdown-mermaid)
+
+Check out the mentioned repositories here:
+
+- [playlist-transfer-frontend](https://github.com/milesbb/playlist-transfer-frontend)
+- [playlist-transfer-backend](https://github.com/milesbb/playlist-transfer-backend)
+- [playlist-import-export-service](https://github.com/milesbb/playlist-import-export-service)
+
+---
+
+### 1. Third Party Music Service OAuth Flow (Spotify Example)
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant F as playlist-transfer-frontend
+    participant B as playlist-transfer-backend
+    participant S as Spotify
+    participant DB as Postgres DB
+
+    U->>F: Clicks "Connect Spotify"
+    F->>B: Request OAuth URL
+    B->>S: Redirect to Spotify OAuth
+    S-->>U: Login page
+    U->>S: Authenticate + approve
+    S->>B: Redirect with auth code
+    B->>S: Exchange code for tokens
+    S-->>B: Access + Refresh tokens
+    B->>DB: Save encrypted refresh token (type=spotify)
+    B-->>F: Success, spotifyAuthenticated=true
+    F-->>U: UI updated (Spotify connected)
+```
+
+---
+
+### 2. User Imports Playlist from Spotify
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant F as playlist-transfer-frontend
+    participant B as playlist-transfer-backend
+    participant DB as Postgres DB
+    participant S as Spotify
+    participant Q as SQS Queue
+    participant W as playlist-import-export-service
+
+    U->>F: Choose "Import from Spotify"
+    F->>B: Call /me
+    B->>DB: Check refresh token
+    alt Authenticated
+        B-->>F: spotifyAuthenticated=true
+    else Not authenticated
+        B-->>F: Redirect to OAuth flow
+    end
+
+    F->>B: /playlists/list {serviceType:spotify}
+    B->>DB: Load refresh token
+    B->>S: Exchange for access token
+    B->>S: Get user playlists
+    S-->>B: Playlist list
+    B-->>F: Send playlists
+
+    U->>F: Select playlist to import
+    F->>B: /playlists/import {playlistName, serviceType:spotify}
+    B->>DB: Insert job row {status:queued, type:IMPORT}
+    B->>Q: Send SQS event with job_id, user_id, type IMPORT
+
+    Q->>W: Trigger Import Worker
+    W->>DB: Update job status=in_progress
+    W->>DB: Load refresh token
+    W->>S: Get access token
+    W->>S: Fetch playlist tracks
+    alt Playlist empty
+        W->>DB: Update job status=errored + error details
+    else Has tracks
+        W->>DB: For each track: check/add by ISRC<br/>or name/artist/album
+        W->>DB: Insert new playlist + playlist_tracks rows
+        W->>DB: Update job status=complete
+    end
+
+    F->>B: /jobs/status/:jobId
+    B->>DB: Lookup job
+    DB-->>B: Job status
+    B-->>F: Return status
+    F-->>U: Show status in UI
+```
+
+---
+
+### 3. User Exports Playlist to Spotify
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant F as playlist-transfer-frontend
+    participant B as playlist-transfer-backend
+    participant DB as Postgres
+    participant S as Spotify
+    participant Q as SQS Queue
+    participant W as playlist-import-export-service
+
+    U->>F: Choose "Export to Spotify"
+    F->>B: /playlists/list {serviceType:playlistTransfer}
+    B->>DB: Get user playlists
+    B-->>F: Return playlists
+    U->>F: Select playlist + target Spotify
+    F->>B: Call /me
+    B->>DB: Check refresh token
+    alt Authenticated
+        B-->>F: spotifyAuthenticated=true
+    else Not authenticated
+        B-->>F: Redirect to OAuth flow
+    end
+
+    F->>B: /playlists/export {playlistName, serviceType:spotify}
+    B->>DB: Insert job {status:queued, type:EXPORT}
+    B->>Q: Send SQS event {job_id, user_id, type EXPORT}
+
+    Q->>W: Trigger Export Worker
+    W->>DB: Update job status=in_progress
+    W->>DB: Load refresh token
+    W->>S: Get access token
+    W->>S: Create new Spotify playlist
+    W->>S: Add tracks in batches
+    W->>DB: Update job status=complete
+
+    F->>B: /jobs/status/:jobId
+    B->>DB: Lookup job
+    DB-->>B: Job status
+    B-->>F: Return status
+    F-->>U: Show status in UI
+```
 
 ---
 
