@@ -1,18 +1,25 @@
-export type User = CreateUserData & {
+export type User = UserDataWithPassword & {
   userId: number;
 };
 
-export type CreateUserData = UserIdentificationData & {
+interface CaptchaToken {
+  captchaToken: string;
+}
+
+export type UserDataWithPassword = UserIdentificationData & {
   passwordHash: string;
 };
+
+export type CreateUserData = UserDataWithPassword & CaptchaToken;
 
 export type UserIdentificationDataWithOptionalId = UserIdentificationData & {
   userId?: number;
 };
 
-export type LoginData = UserIdentificationData & {
-  password: string;
-};
+export type LoginData = UserIdentificationData &
+  CaptchaToken & {
+    password: string;
+  };
 
 export interface UserIdentificationData {
   email: string | undefined;

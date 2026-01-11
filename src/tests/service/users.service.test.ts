@@ -33,6 +33,7 @@ describe('User Service Layer', () => {
         username: 'alice',
         email: 'alice@example.com',
         passwordHash: 'pw',
+        captchaToken: 'test',
       };
 
       (usersDataLayer.areUsernameAndEmailUnique as any).mockResolvedValueOnce({
@@ -59,6 +60,7 @@ describe('User Service Layer', () => {
         username: 'bob',
         email: 'bob@example.com',
         passwordHash: 'pw',
+        captchaToken: 'test',
       };
 
       (usersDataLayer.areUsernameAndEmailUnique as any).mockResolvedValueOnce({

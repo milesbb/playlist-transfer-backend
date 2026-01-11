@@ -1,5 +1,10 @@
 import { requireAuth } from '@middlewares/auth';
-import { loginUser, logoutUser, refreshUserToken } from '@service/auth';
+import {
+  loginUser,
+  logoutUser,
+  refreshUserToken,
+  verifyCaptchaToken,
+} from '@service/auth';
 import { createUser, deleteUser } from '@service/users';
 import { ErrorVariants } from '@utils/errorTypes';
 import { Router, Response, Request, NextFunction } from 'express';
@@ -18,6 +23,8 @@ router.post(
     try {
       const createUserData = await parseUserCreateRequest(req.body);
 
+      await verifyCaptchaToken(createUserData.captchaToken);
+
       await createUser(createUserData);
 
       res.status(200);
@@ -34,7 +41,11 @@ router.post(
   '/login',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { password, username, email } = parseLoginRequest(req.body);
+      const { password, username, email, captchaToken } = parseLoginRequest(
+        req.body,
+      );
+
+      await verifyCaptchaToken(captchaToken);
 
       const { accessToken, refreshToken, userId } = await loginUser(password, {
         username: username,

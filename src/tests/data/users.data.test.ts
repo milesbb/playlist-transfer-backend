@@ -31,6 +31,7 @@ describe('User Data Layer', () => {
         email: 'alice@example.com',
         username: 'alice',
         passwordHash: 'hashedpw',
+        captchaToken: 'test',
       };
       await createUser(userData, mockConnection);
 
@@ -48,6 +49,7 @@ describe('User Data Layer', () => {
         email: 'bob@example.com',
         username: 'bob',
         passwordHash: 'pw',
+        captchaToken: 'test',
       };
 
       (queryOne as any).mockResolvedValueOnce({

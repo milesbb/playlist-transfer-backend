@@ -13,7 +13,8 @@ import { LoginTokens } from '@typeDefs/auth';
 import { getUser } from '@data/users';
 import logger from '@utils/logging';
 import { ErrorVariants } from '@utils/errorTypes';
-import { getJWTSecret } from '@utils/aws/auth';
+import { getCaptchaSecret, getJWTSecret } from '@utils/aws/auth';
+import { verify } from 'hcaptcha';
 
 const ACCESS_TOKEN_TTL = process.env.ACCESS_TOKEN_TTL as any | '15m';
 const REFRESH_TOKEN_TTL_DAYS = 30;
@@ -75,6 +76,19 @@ export const verifyRefreshToken = async (
 
   logger.info('Refresh token not found/invalid.');
   throw ErrorVariants.InvalidRefreshToken;
+};
+
+export const verifyCaptchaToken = async (captchaToken: string) => {
+  logger.info('Verifying Captcha');
+
+  const captchaSecretKey = await getCaptchaSecret();
+  const verifyResult = await verify(captchaSecretKey, captchaToken);
+
+  if (!verifyResult || !verifyResult.success) {
+    logger.error('Failed Captcha');
+    throw ErrorVariants.CaptchaFailed;
+  }
+  logger.info('Passed Captcha');
 };
 
 export const loginUser = async (

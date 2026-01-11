@@ -19,6 +19,7 @@ vi.mock('@service/auth', () => ({
   refreshUserToken: vi.fn(),
   logoutUser: vi.fn(),
   hashPassword: vi.fn(),
+  verifyCaptchaToken: vi.fn(),
 }));
 
 vi.mock('@middlewares/auth', () => ({
@@ -39,6 +40,8 @@ describe('Users Controller (supertest)', () => {
     app.use(errorHandler);
 
     vi.clearAllMocks();
+
+    (authService.verifyCaptchaToken as any).mockResolvedValue();
   });
 
   describe('POST /v1/users/signup', () => {
@@ -47,12 +50,14 @@ describe('Users Controller (supertest)', () => {
         username: 'alice',
         email: 'alice@example.com',
         password: 'testpass',
+        captchaToken: 'testToken',
       };
 
       const mockCreateUserData = {
         username: 'alice',
         email: 'alice@example.com',
         passwordHash: 'hashed',
+        captchaToken: 'testToken',
       };
 
       (authService.hashPassword as any).mockResolvedValue(
@@ -67,6 +72,9 @@ describe('Users Controller (supertest)', () => {
       expect(response.status).toBe(200);
       expect(response.body).toEqual({ message: 'User created successfully' });
       expect(userService.createUser).toHaveBeenCalledWith(mockCreateUserData);
+      expect(authService.verifyCaptchaToken).toHaveBeenCalledWith(
+        mockCreateUserData.captchaToken,
+      );
     });
 
     it('should call next with error if parsing fails', async () => {
@@ -86,6 +94,7 @@ describe('Users Controller (supertest)', () => {
         username: 'alice',
         email: 'alice@example.com',
         password: 'testpass',
+        captchaToken: 'testToken',
       };
 
       const testTokens: LoginTokens & { userId: number } = {
@@ -119,6 +128,9 @@ describe('Users Controller (supertest)', () => {
           username: mockRequestData.username,
           email: mockRequestData.email,
         },
+      );
+      expect(authService.verifyCaptchaToken).toHaveBeenCalledWith(
+        mockRequestData.captchaToken,
       );
     });
 

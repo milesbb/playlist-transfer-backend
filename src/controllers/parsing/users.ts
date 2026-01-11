@@ -16,6 +16,7 @@ export const parseUserCreateRequest = async (
     username: parseString(body.username, 'username', false),
     email: parseString(body.email, 'email', false),
     passwordHash,
+    captchaToken: parseString(body.captchaToken, 'captchaToken', false),
   };
 };
 
@@ -31,6 +32,7 @@ export const parseLoginRequest = (body: any): LoginData => {
     username: parseString(body.username, 'username', true),
     email: parseString(body.email, 'email', true),
     password: parseString(body.password, 'password', false),
+    captchaToken: parseString(body.captchaToken, 'captchaToken', false),
   };
 };
 

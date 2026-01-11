@@ -7,3 +7,11 @@ export const getJWTSecret = async (): Promise<string> => {
 
   return JWTSecret;
 };
+
+export const getCaptchaSecret = async (): Promise<string> => {
+  const CaptchaSecretSSMPath = process.env.CAPTCHA_SECRET_KEY!;
+
+  const CaptchaSecret = await getSecureParameter(CaptchaSecretSSMPath);
+
+  return CaptchaSecret;
+};

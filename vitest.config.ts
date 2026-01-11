@@ -20,6 +20,7 @@ export default defineConfig({
       DB_USER_PARAM: '/test/prefix/param',
       JWT_SECRET: 'test-secret',
       ACCESS_TOKEN_TTL: '15m',
+      CAPTCHA_SECRET_KEY: '/test/prefix/param',
     },
   },
   resolve: {

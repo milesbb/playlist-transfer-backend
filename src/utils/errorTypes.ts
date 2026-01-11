@@ -59,4 +59,10 @@ export const ErrorVariants = {
     message: `Missing cookies from refresh request: ${cookies.join(', ')}`,
     httpStatus: 401,
   }),
+  CaptchaFailed: {
+    errorCode: 2007,
+    errorKey: 'CaptchaFailed',
+    message: 'Captcha check failed.',
+    httpStatus: 401,
+  },
 };

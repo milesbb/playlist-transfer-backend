@@ -8,6 +8,7 @@ describe('parseUserCreateRequest', () => {
       username: 'alice',
       email: 'alice@example.com',
       password: '  myPassword  ',
+      captchaToken: 'testToken',
     };
 
     const result = await parseModule.parseUserCreateRequest(body);
@@ -17,6 +18,7 @@ describe('parseUserCreateRequest', () => {
     expect(result.passwordHash).not.toBe('myPassword');
     expect(typeof result.passwordHash).toBe('string');
     expect(result.passwordHash.length).toBeGreaterThan(0);
+    expect(result.captchaToken).toBe('testToken');
   });
 
   it('should throw if password is missing', async () => {
@@ -24,6 +26,7 @@ describe('parseUserCreateRequest', () => {
       username: 'alice',
       email: 'alice@example.com',
       // passwordHash missing
+      captchaToken: 'testToken',
     };
 
     await expect(parseModule.parseUserCreateRequest(body)).rejects.toThrow(
@@ -35,11 +38,24 @@ describe('parseUserCreateRequest', () => {
     const body = {
       username: '   ',
       email: 'alice@example.com',
-      passwordHash: 'myPassword',
+      password: 'myPassword',
+      captchaToken: 'testToken',
     };
 
     await expect(parseModule.parseUserCreateRequest(body)).rejects.toThrow(
-      "Something went wrong when parsing: String field 'password' is undefined.",
+      "Something went wrong when parsing: Got empty string for field 'username'",
+    );
+  });
+
+  it('should throw if captchaToken is empty', async () => {
+    const body = {
+      username: 'alice',
+      email: 'alice@example.com',
+      password: 'myPassword',
+    };
+
+    await expect(parseModule.parseUserCreateRequest(body)).rejects.toThrow(
+      "Something went wrong when parsing: String field 'captchaToken' is undefined.",
     );
   });
 });
@@ -50,6 +66,7 @@ describe('parseLoginRequest (integration)', () => {
       username: 'john',
       email: 'john@example.com',
       password: 'secret',
+      captchaToken: 'testToken',
     };
 
     const result = parseModule.parseLoginRequest(body);
@@ -58,11 +75,12 @@ describe('parseLoginRequest (integration)', () => {
       username: 'john',
       email: 'john@example.com',
       password: 'secret',
+      captchaToken: 'testToken',
     });
   });
 
   it('returns undefined for optional fields if missing', () => {
-    const body = { password: 'secret' };
+    const body = { password: 'secret', captchaToken: 'testToken' };
 
     const result = parseModule.parseLoginRequest(body);
 
@@ -70,11 +88,16 @@ describe('parseLoginRequest (integration)', () => {
       username: undefined,
       email: undefined,
       password: 'secret',
+      captchaToken: 'testToken',
     });
   });
 
   it('throws if password is missing', () => {
-    const body = { username: 'john', email: 'john@example.com' };
+    const body = {
+      username: 'john',
+      email: 'john@example.com',
+      captchaToken: 'testToken',
+    };
 
     expect(() => parseModule.parseLoginRequest(body)).toThrowError(
       ErrorVariants.ParsingError("String field 'password' is undefined.")
@@ -83,10 +106,28 @@ describe('parseLoginRequest (integration)', () => {
   });
 
   it('throws if username is wrong type', () => {
-    const body = { username: 123, email: 'a@b.com', password: 'pw' };
+    const body = {
+      username: 123,
+      email: 'a@b.com',
+      password: 'pw',
+      captchaToken: 'testToken',
+    };
 
     expect(() => parseModule.parseLoginRequest(body)).toThrowError(
       "Expected string for field 'username' and got number",
+    );
+  });
+
+  it('throws if captchaToken is missing', () => {
+    const body = {
+      username: 'john',
+      email: 'john@example.com',
+      password: 'pw',
+    };
+
+    expect(() => parseModule.parseLoginRequest(body)).toThrowError(
+      ErrorVariants.ParsingError("String field 'captchaToken' is undefined.")
+        .message,
     );
   });
 });

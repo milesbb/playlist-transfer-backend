@@ -3,17 +3,19 @@ import * as authService from '@service/auth';
 import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import hcaptcha from 'hcaptcha';
 import * as connections from '@utils/connections';
 import * as authData from '@data/auth';
 import * as userData from '@data/users';
 import { ErrorVariants } from '@utils/errorTypes';
-import { getJWTSecret } from '@utils/aws/auth';
+import { getJWTSecret, getCaptchaSecret } from '@utils/aws/auth';
 
 const ACCESS_TOKEN_TTL = process.env.ACCESS_TOKEN_TTL!;
 
 vi.mock('argon2');
 vi.mock('jsonwebtoken');
 vi.mock('crypto');
+vi.mock('hcaptcha');
 vi.mock('@utils/connections');
 vi.mock('@data/auth', () => ({
   addRefreshToken: vi.fn(),
@@ -24,6 +26,7 @@ vi.mock('@data/auth', () => ({
 }));
 vi.mock('@utils/aws/auth', () => ({
   getJWTSecret: vi.fn(),
+  getCaptchaSecret: vi.fn(),
 }));
 vi.mock('@data/users', () => ({
   getUser: vi.fn(),
@@ -163,6 +166,30 @@ describe('authService', () => {
       expect(authData.revokeRefreshToken).toHaveBeenCalledWith(
         1,
         mockConnection,
+      );
+    });
+  });
+
+  describe('verifyCaptchaToken', () => {
+    it('Doesnt throw if captcha verify success is true', async () => {
+      (getCaptchaSecret as any).mockResolvedValue('secret');
+      (hcaptcha.verify as any).mockResolvedValue({ success: true });
+      await expect(authService.verifyCaptchaToken).not.toThrow();
+    });
+
+    it('throws if captcha verify doesnt return anything', async () => {
+      (getCaptchaSecret as any).mockResolvedValue('secret');
+      (hcaptcha.verify as any).mockResolvedValue();
+      expect(authService.verifyCaptchaToken).rejects.toThrow(
+        'Captcha check failed.',
+      );
+    });
+
+    it('throws if captcha verify success is false', async () => {
+      (getCaptchaSecret as any).mockResolvedValue('secret');
+      (hcaptcha.verify as any).mockResolvedValue({ success: false });
+      expect(authService.verifyCaptchaToken).rejects.toThrow(
+        'Captcha check failed.',
       );
     });
   });
