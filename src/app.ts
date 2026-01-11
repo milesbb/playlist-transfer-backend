@@ -2,6 +2,7 @@ import express from 'express';
 import routers from '@controllers/index';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import rateLimit from 'express-rate-limit';
 import { errorHandler } from './middlewares/errorHandler';
 
 const app = express();
@@ -60,7 +61,17 @@ app.use(cookieParser());
 
 app.use(express.json());
 
-routers.forEach((router) => app.use(router.path, ...router.handlers));
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  message: 'Too many requests from this IP, please try again later.',
+});
+
+app.use(apiLimiter);
+
+routers.forEach((router) => {
+  app.use(router.path, ...router.handlers);
+});
 
 app.use(errorHandler);
 
