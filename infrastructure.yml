@@ -62,6 +62,7 @@ Resources:
                   - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/url
                   - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/db/user
                   - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/jwt-secret
+                  - !Sub arn:aws:ssm:${AWS::Region}:${AWS::AccountId}:parameter/playlistTransfer/captcha-secret-key
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
         - arn:aws:iam::aws:policy/CloudWatchLogsFullAccess
