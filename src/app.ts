@@ -6,12 +6,20 @@ import { errorHandler } from './middlewares/errorHandler';
 
 const app = express();
 
-const allowedOrigins = [
-  'https://localhost:5174',
-  'http://localhost:5173',
+const isProduction = process.env.NODE_ENV === 'production';
+
+let allowedOrigins = [
   'https://github.com/milesbb/playlist-transfer-frontend',
   'https://playlist-transfer-app.netlify.app',
 ];
+
+if (!isProduction) {
+  allowedOrigins = [
+    ...allowedOrigins,
+    'https://localhost:5174',
+    'http://localhost:5173',
+  ];
+}
 
 const corsOptions = {
   origin: (origin: string | undefined, callback: any) => {
