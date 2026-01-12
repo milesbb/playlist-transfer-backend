@@ -12,6 +12,7 @@ const isProduction = process.env.NODE_ENV === 'production';
 let allowedOrigins = [
   'https://github.com/milesbb/playlist-transfer-frontend',
   'https://playlist-transfer-app.netlify.app',
+  'https://playlist-transfer.milesbb.tech',
 ];
 
 if (!isProduction) {
