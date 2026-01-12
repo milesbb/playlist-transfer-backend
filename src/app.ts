@@ -14,6 +14,8 @@ let allowedOrigins = [
   'https://github.com/milesbb/playlist-transfer-frontend',
   'https://playlist-transfer-app.netlify.app',
   'https://playlist-transfer.milesbb.tech',
+  'https://localhost:5174',
+  'http://localhost:5173',
 ];
 
 if (!isProduction || allowLocalOrigin) {
