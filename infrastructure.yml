@@ -89,6 +89,7 @@ Resources:
           JWT_SECRET: /playlistTransfer/jwt-secret
           ACCESS_TOKEN_TTL: '15m'
           CAPTCHA_SECRET_KEY: /playlistTransfer/captcha-secret-key
+          ALLOW_LOCAL_ORIGIN: 'true'
       Events:
         ApiEvent:
           Type: Api

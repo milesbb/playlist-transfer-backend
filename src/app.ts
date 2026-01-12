@@ -8,6 +8,7 @@ import { errorHandler } from './middlewares/errorHandler';
 const app = express();
 
 const isProduction = process.env.NODE_ENV === 'production';
+const allowLocalOrigin = process.env.ALLOW_LOCAL_ORIGIN === 'true';
 
 let allowedOrigins = [
   'https://github.com/milesbb/playlist-transfer-frontend',
@@ -15,7 +16,7 @@ let allowedOrigins = [
   'https://playlist-transfer.milesbb.tech',
 ];
 
-if (!isProduction) {
+if (!isProduction || allowLocalOrigin) {
   allowedOrigins = [
     ...allowedOrigins,
     'https://localhost:5174',
